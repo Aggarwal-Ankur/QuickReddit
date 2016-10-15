@@ -1,2 +1,2 @@
 # QuickReddit
-Capstone for Android Nanodegree
+App used as final project for Android Nanodegree
