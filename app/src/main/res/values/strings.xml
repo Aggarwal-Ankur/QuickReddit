@@ -9,4 +9,5 @@
 
     <!-- Error/Info tasks -->
     <string name="network_error_toast">Network Error! Please check your connection</string>
+    <string name="service_error_toast">Error fetching data!</string>
 </resources>

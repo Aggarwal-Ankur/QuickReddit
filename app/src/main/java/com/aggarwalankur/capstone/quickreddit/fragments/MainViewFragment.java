@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.data.RedditPostContract;
 
 /**
  * Created by Ankur on 13-Oct-2016
@@ -52,18 +53,13 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
         switch (loaderID) {
             case REDDIT_CURSOR_LOADER_ID:
-                // Returns a new CursorLoader
-                /*return new CursorLoader(
-                        getActivity(),   // Parent activity context
-                        mDataUrl,        // Table to query
-                        mProjection,     // Projection to return
-                        null,            // No selection clause
-                        null,            // No selection arguments
-                        null             // Default sort order
-                );
-            */
+                // This narrows the return to only the stocks that are most current.
+                return new CursorLoader(getActivity(), RedditPostContract.RedditPost.CONTENT_URI,
+                        RedditPostContract.RedditPost.ALL_COLUMNS,
+                        RedditPostContract.RedditPost.COLUMN_POST_TYPE + " = " + 1,
+                        null,
+                        null);
 
-                return null;
             default:
                 // An invalid id was passed in
                 return null;
@@ -72,11 +68,12 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
+        //TODO : create adapter
+        //mCursorAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        //mCursorAdapter.swapCursor(null);
     }
 }

@@ -21,6 +21,10 @@ import android.widget.Toast;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment;
 import com.aggarwalankur.capstone.quickreddit.services.DataFetchService;
+import com.aggarwalankur.capstone.quickreddit.services.RedditTaskService;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 
 /**
  * Tutorial used : https://developer.android.com/training/load-data-background/index.html
@@ -78,6 +82,26 @@ public class MainActivity extends AppCompatActivity
         //Init loader
         MainViewFragment mainViewFragment = (MainViewFragment) getSupportFragmentManager().findFragmentById(R.id.main_view_fragment);
         getLoaderManager().initLoader(REDDIT_CURSOR_LOADER_ID, null, mainViewFragment);
+
+        if (isConnected){
+            long period = 3600L;
+            long flex = 10L;
+            String periodicTag = "periodic";
+
+            // create a periodic task to pull stocks once every hour after the app has been opened. This
+            // is so Widget data stays up to date.
+            PeriodicTask periodicTask = new PeriodicTask.Builder()
+                    .setService(RedditTaskService.class)
+                    .setPeriod(period)
+                    .setFlex(flex)
+                    .setTag(periodicTag)
+                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                    .setRequiresCharging(false)
+                    .build();
+            // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
+            // are updated.
+            GcmNetworkManager.getInstance(this).schedule(periodicTask);
+        }
 
     }
 
