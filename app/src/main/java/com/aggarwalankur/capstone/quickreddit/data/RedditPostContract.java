@@ -50,4 +50,17 @@ public class RedditPostContract {
                 COLUMN_POST_TYPE
         };
     }
+
+    public static final class SubscribedSubreddits implements BaseColumns{
+        public static final Uri CONTENT_URI =  Uri.withAppendedPath(RedditPostContract.CONTENT_URI, "subscribed_subreddits");
+
+        public static final String TABLE_NAME = "subreddits";
+
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_PATH = "path";
+
+        public static final String[] ALL_COLUMNS = {COLUMN_NAME,
+                COLUMN_PATH
+        };
+    }
 }

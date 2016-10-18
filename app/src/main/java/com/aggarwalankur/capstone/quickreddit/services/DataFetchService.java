@@ -41,7 +41,7 @@ public class DataFetchService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "onHandleIntent");
 
-        RedditTaskService stockTaskService = new RedditTaskService(this);
+        RedditTaskService redditTaskService = new RedditTaskService(this);
 
         Bundle args = new Bundle();
         if (intent.getStringExtra(IConstants.IDENTIFFIERS.ACTION).equals(IConstants.ACTIONS.ADD_SUBREDDIT)) {
@@ -49,7 +49,7 @@ public class DataFetchService extends IntentService {
         }
         // We can call OnRunTask from the intent service to force it to run immediately instead of
         // scheduling a task.
-        int result = stockTaskService.onRunTask(new TaskParams(intent.getStringExtra(IConstants.IDENTIFFIERS.ACTION), args));
+        int result = redditTaskService.onRunTask(new TaskParams(intent.getStringExtra(IConstants.IDENTIFFIERS.ACTION), args));
 
         if (result != IConstants.STATUS.SUCCESS) {
             mHandler.post(new Runnable() {

@@ -1,5 +1,6 @@
 package com.aggarwalankur.capstone.quickreddit.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DbHelper extends SQLiteOpenHelper {
     private static final int VERSION = 1;
 
-    static final String DB_NAME = "redditdata.db";
+    public static final String DB_NAME = "redditdata.db";
 
 
     public DbHelper(Context context) {
@@ -19,7 +20,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        final String CREATE_TABLE = "CREATE TABLE " + RedditPostContract.RedditPost.TABLE_NAME + " (" +
+        final String CREATE_REDDITPOST_TABLE = "CREATE TABLE " + RedditPostContract.RedditPost.TABLE_NAME + " (" +
                 RedditPostContract.RedditPost._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 RedditPostContract.RedditPost.COLUMN_ID + " INTEGER UNIQUE NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_TITLE + " TEXT NOT NULL, " +
@@ -35,12 +36,41 @@ public class DbHelper extends SQLiteOpenHelper {
                 RedditPostContract.RedditPost.COLUMN_PREVIEW_IMG + " TEXT, " +
                 RedditPostContract.RedditPost.COLUMN_POST_TYPE + " INTEGER);";
 
-        sqLiteDatabase.execSQL(CREATE_TABLE);
+        final String CREATE_SUBREDDIT_TABLE = "CREATE TABLE " + RedditPostContract.SubscribedSubreddits.TABLE_NAME + " (" +
+                RedditPostContract.SubscribedSubreddits._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                RedditPostContract.SubscribedSubreddits.COLUMN_NAME + " TEXT UNIQUE NOT NULL, " +
+                RedditPostContract.SubscribedSubreddits.COLUMN_PATH + " TEXT);";
+
+        sqLiteDatabase.execSQL(CREATE_REDDITPOST_TABLE);
+        sqLiteDatabase.execSQL(CREATE_SUBREDDIT_TABLE);
+
+        testSubredditTable(sqLiteDatabase);
+    }
+
+    //TODO : Remove after testing
+    public static void testSubredditTable(SQLiteDatabase sqLiteDatabase){
+        ContentValues testValues = new ContentValues();
+        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Gifs");
+        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/gifs");
+        ContentValues testValues2 = new ContentValues();
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Tasker");
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/tasker");
+        ContentValues testValues3 = new ContentValues();
+        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Jokes");
+        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/jokes");
+        try {
+            sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues);
+            sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues2);
+            sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues3);
+        } catch (Exception e) {
+            //catch code
+        }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + RedditPostContract.RedditPost.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + RedditPostContract.SubscribedSubreddits.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }
