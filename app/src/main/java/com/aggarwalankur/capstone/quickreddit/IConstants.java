@@ -26,4 +26,11 @@ public interface IConstants {
         int TOP = 13;
 
     }
+
+    interface LEFT_NAV_TAGS{
+        String MAIN_PAGE = "main_page";
+        String SUBREDDIT_FEED = "feed";
+        String ADD_SUBREDDIT = "add_subreddit";
+        String SETTINGS = "settings";
+    }
 }

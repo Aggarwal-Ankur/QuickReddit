@@ -4,6 +4,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="action_main_page">Reddit Main Page</string>
+    <string name="action_feed">Subreddit Feed</string>
+    <string name="action_add_subreddit">Add Subreddit</string>
     <string name="action_settings">Settings</string>
 
 
