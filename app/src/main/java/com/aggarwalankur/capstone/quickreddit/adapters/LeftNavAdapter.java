@@ -75,15 +75,17 @@ public class LeftNavAdapter extends RecyclerView.Adapter<LeftNavAdapter.LeftNavV
             holder.layout.setTag(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED);
         }else if(position == 2){
             //3. Add Subreddit
-            holder.leftPadding.setVisibility(View.GONE);
+            holder.leftPadding.setVisibility(View.VISIBLE);
             holder.plusIcon.setVisibility(View.VISIBLE);
+            holder.plusIcon.setImageResource(R.drawable.ic_add);
             holder.itemName.setText(mContext.getResources().getString(R.string.action_add_subreddit));
             holder.layout.setTag(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT);
-        }else if(position == mItemList.size()){
+        }else if((position - 3) == mItemList.size()){
             //4. Settings
             holder.leftPadding.setVisibility(View.GONE);
             holder.plusIcon.setVisibility(View.VISIBLE);
-            holder.itemName.setText(mContext.getResources().getString(R.string.action_add_subreddit));
+            holder.plusIcon.setImageResource(R.drawable.ic_settings_black_24dp);
+            holder.itemName.setText(mContext.getResources().getString(R.string.action_settings));
             holder.layout.setTag(IConstants.LEFT_NAV_TAGS.SETTINGS);
         }else{
             int listPosition = position - 3;

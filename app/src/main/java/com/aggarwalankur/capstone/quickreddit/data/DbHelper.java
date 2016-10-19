@@ -4,11 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by Ankur on 13-Oct-2016
  */
 public class DbHelper extends SQLiteOpenHelper {
+    private static final String TAG = DbHelper.class.getSimpleName();
     private static final int VERSION = 1;
 
     public static final String DB_NAME = "redditdata.db";
@@ -29,7 +31,6 @@ public class DbHelper extends SQLiteOpenHelper {
                 RedditPostContract.RedditPost.COLUMN_SCORE + " INTEGER, " +
                 RedditPostContract.RedditPost.COLUMN_NUM_COMMENTS + " INTEGER, " +
                 RedditPostContract.RedditPost.COLUMN_OVER_18 + " INTEGER, " +
-                RedditPostContract.RedditPost.COLUMN_SCORE + " INTEGER, " +
                 RedditPostContract.RedditPost.COLUMN_SUBREDDIT + " TEXT NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_CREATED_UTC + " INTEGER NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_URL + " TEXT NOT NULL, " +
@@ -62,8 +63,10 @@ public class DbHelper extends SQLiteOpenHelper {
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues);
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues2);
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues3);
+            Log.d(TAG, "Db Insert Success");
         } catch (Exception e) {
-            //catch code
+            e.printStackTrace();
+            Log.d(TAG, "Db Insert Failed");
         }
     }
 

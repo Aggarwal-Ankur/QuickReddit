@@ -1,5 +1,6 @@
 package com.aggarwalankur.capstone.quickreddit.activities;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,9 +17,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
+import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
+import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
+import com.aggarwalankur.capstone.quickreddit.fragments.DataFetchFragment;
 import com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment;
 import com.aggarwalankur.capstone.quickreddit.services.DataFetchService;
 import com.aggarwalankur.capstone.quickreddit.services.RedditTaskService;
@@ -26,18 +32,28 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Tutorial used : https://developer.android.com/training/load-data-background/index.html
  */
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements LeftNavAdapter.LeftNavItemClickCallback, DataFetchFragment.FetchCallbacks {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
+    private static final String TAG_ASYNC_FRAGMENT = "async_fragment";
 
     private Intent mServiceIntent;
     private Context mContext;
     boolean isConnected;
+
+    /*Because this is a retained fragment and our AsyctTask is inside this, we do not need to implement onSaveInstanceState() in this activity*/
+    private DataFetchFragment mDataFetchFragment;
+
+    private LeftNavAdapter mLeftNavAdapter;
+    private List<SubredditDTO> mDataItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +79,10 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        RecyclerView leftNavListView = (RecyclerView)findViewById(R.id.leftNavList);
+        mDataItems = new ArrayList<>();
+        mLeftNavAdapter = new LeftNavAdapter(this, mDataItems, this);
+        leftNavListView.setAdapter(mLeftNavAdapter);
 
 
         //Setup the Reddit data service
@@ -82,6 +100,17 @@ public class MainActivity extends AppCompatActivity
         //Init loader
         MainViewFragment mainViewFragment = (MainViewFragment) getSupportFragmentManager().findFragmentById(R.id.main_view_fragment);
         getLoaderManager().initLoader(REDDIT_CURSOR_LOADER_ID, null, mainViewFragment);
+
+        FragmentManager fm = getFragmentManager();
+        mDataFetchFragment = (DataFetchFragment) fm.findFragmentByTag(TAG_ASYNC_FRAGMENT);
+
+        if (mDataFetchFragment == null) {
+            mDataFetchFragment = new DataFetchFragment();
+            fm.beginTransaction().add(mDataFetchFragment, TAG_ASYNC_FRAGMENT).commit();
+            fm.executePendingTransactions();
+        }
+
+        mDataFetchFragment.fetchSubscribedSubreddits();
 
         if (isConnected){
             long period = 3600L;
@@ -141,28 +170,24 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
+    public void onLeftNavItemClicked(String tag) {
+        Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
+    }
+
+    @Override
+    public void onSubredditListFetchCompleted(List<SubredditDTO> subredditList) {
+        if(subredditList != null && !subredditList.isEmpty()){
+            mDataItems.clear();
+            mDataItems.addAll(subredditList);
+            mLeftNavAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onSubredditPostsFetchCompleted(List<RedditResponse> redditPostsList) {
+
     }
 }

@@ -21,10 +21,13 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main">
-        <ListView
+        <android.support.v7.widget.RecyclerView
             android:id="@+id/leftNavList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"
+            tools:listItem="@layout/left_nav_list_item"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:layout_marginTop="@dimen/left_nav_vertical_margin"/>
         </android.support.design.widget.NavigationView>
 
 </android.support.v4.widget.DrawerLayout>

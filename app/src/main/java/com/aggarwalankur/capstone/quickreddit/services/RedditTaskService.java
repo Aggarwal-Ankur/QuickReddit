@@ -18,6 +18,10 @@ public class RedditTaskService extends GcmTaskService {
     private Context mContext;
     private StringBuilder mSubscribedSubreddits = new StringBuilder();
 
+    public RedditTaskService() {
+        //Required for Manifest
+    }
+
     public RedditTaskService(Context context) {
         mContext = context;
     }
