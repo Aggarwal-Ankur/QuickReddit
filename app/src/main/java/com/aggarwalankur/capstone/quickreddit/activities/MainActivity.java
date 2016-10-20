@@ -15,11 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
+import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
 import android.widget.Toast;
 
+import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     /*Because this is a retained fragment and our AsyctTask is inside this, we do not need to implement onSaveInstanceState() in this activity*/
     private DataFetchFragment mDataFetchFragment;
 
+    private MainViewFragment mMainViewFragment;
+
     private LeftNavAdapter mLeftNavAdapter;
     private List<SubredditDTO> mDataItems;
 
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity
 
         //View related tasks
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -98,8 +103,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         //Init loader
-        MainViewFragment mainViewFragment = (MainViewFragment) getSupportFragmentManager().findFragmentById(R.id.main_view_fragment);
-        getLoaderManager().initLoader(REDDIT_CURSOR_LOADER_ID, null, mainViewFragment);
+        mMainViewFragment = (MainViewFragment) getSupportFragmentManager().findFragmentById(R.id.main_view_fragment);
+        getLoaderManager().initLoader(REDDIT_CURSOR_LOADER_ID, null, mMainViewFragment);
 
         FragmentManager fm = getFragmentManager();
         mDataFetchFragment = (DataFetchFragment) fm.findFragmentByTag(TAG_ASYNC_FRAGMENT);
@@ -173,6 +178,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLeftNavItemClicked(String tag) {
         Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
+
+        if(tag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
+            String url = REDDIT_URL.BASE_URL + REDDIT_URL.SUBURL_HOT + REDDIT_URL.SUBURL_JSON;
+            mDataFetchFragment.fetchRedditPostsByUrl(url);
+        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
+
+        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
+
+        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
+
+        }else{
+            String url = REDDIT_URL.BASE_URL + tag + REDDIT_URL.SUBURL_HOT  + REDDIT_URL.SUBURL_JSON;
+            mDataFetchFragment.fetchRedditPostsByUrl(url);
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -187,7 +206,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSubredditPostsFetchCompleted(List<RedditResponse> redditPostsList) {
-
+    public void onSubredditPostsFetchCompleted(RedditResponse redditPosts) {
+        if(redditPosts != null) {
+            Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
+            mMainViewFragment.updateRedditContents(redditPosts.getRedditData().getRedditPostList());
+        }
     }
 }

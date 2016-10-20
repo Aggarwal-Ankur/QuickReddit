@@ -17,6 +17,7 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Ankur on 19-Oct-16.
@@ -37,6 +38,7 @@ public class DataFetchFragment extends Fragment {
     private FetchCallbacks mCallbackListener;
 
     private SubredditListFetchTask mSubredditListFetchTask;
+    private RedditPostsFetchTask mRedditPostsFetchTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,14 @@ public class DataFetchFragment extends Fragment {
         }
         mSubredditListFetchTask = new SubredditListFetchTask();
         mSubredditListFetchTask.execute();
+    }
+
+    public void fetchRedditPostsByUrl(String url){
+        if(mRedditPostsFetchTask != null){
+            mRedditPostsFetchTask.cancel(true);
+        }
+        mRedditPostsFetchTask = new RedditPostsFetchTask();
+        mRedditPostsFetchTask.execute(new String[]{url});
     }
 
     private class SubredditListFetchTask extends AsyncTask<Void, Void, List<SubredditDTO>> {
@@ -97,14 +107,19 @@ public class DataFetchFragment extends Fragment {
             }
 
             client = new OkHttpClient();
+            client.setConnectTimeout(30, TimeUnit.SECONDS);
+            client.setReadTimeout(30, TimeUnit.SECONDS);
 
             try {
+
+                Log.d(TAG, "RedditPostsFetchTask URL = "+params[0]);
                 Request request = new Request.Builder()
                         .url(params[0])
                         .build();
                 Response response = client.newCall(request).execute();
 
                 if(response.code() != 200){
+                    Log.d(TAG, "RedditPostsFetchTask Error. Code = "+response.code());
                     return null;
                 }
 

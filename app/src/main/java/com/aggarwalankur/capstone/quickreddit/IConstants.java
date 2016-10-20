@@ -33,4 +33,14 @@ public interface IConstants {
         String ADD_SUBREDDIT = "add_subreddit";
         String SETTINGS = "settings";
     }
+
+    interface REDDIT_URL{
+        String BASE_URL = "http://www.reddit.com";
+
+        String SUBURL_HOT = "/hot";
+        String SUBURL_NEW = "/new";
+        String SUBURL_TOP = "/top";
+
+        String SUBURL_JSON = "/.json";
+    }
 }
