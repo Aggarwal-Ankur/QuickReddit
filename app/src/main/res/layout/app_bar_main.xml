@@ -26,6 +26,7 @@
         android:name="com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment"
         android:id="@+id/main_view_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:layout="@layout/content_main" />
 
 </android.support.design.widget.CoordinatorLayout>

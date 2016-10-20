@@ -1,19 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/reddit_post_item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:paddingTop="2dp"
-    android:paddingBottom="2dp"
-    >
+    android:gravity="center_vertical">
     <!--Preview Image-->
     <ImageView
         android:id="@+id/preview_img"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_margin="4dp"
         android:src="@drawable/ic_placeholder_img"
         android:layout_gravity="center_vertical"/>
+
+    <!--Description Text-->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/reddit_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="/r/gifs  4hrs  img.imgur"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/grey700"/>
+
+        <TextView
+            android:id="@+id/reddit_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:layout_gravity="start|left"
+            android:text="This is the test title text"
+            android:fontFamily="sans-serif"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/reddit_bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="393 comments    5 upvotes"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="@color/grey700"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/grey400"/>
+    </LinearLayout>
 
     </LinearLayout>

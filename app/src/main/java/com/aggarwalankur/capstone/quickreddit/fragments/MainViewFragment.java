@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +62,11 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     public void updateRedditContents(List<RedditResponse.RedditPost> redditPostsList){
-
+        if(redditPostsList != null){
+            mRedditPostsList.clear();
+            mRedditPostsList.addAll(redditPostsList);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -94,6 +99,8 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onRedditPostItemClicked(String tag) {
+        Log.d(TAG, "clicked : " + tag);
 
+        //Launch DSetails Activity Here
     }
 }
