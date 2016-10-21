@@ -15,6 +15,12 @@ public interface IConstants {
         String PERIODIC_SYNC = "sync";
     }
 
+    interface INTENT_EXTRAS{
+        String TYPE = "type";
+        String JSON_STRING = "json_string";
+        String START_ID = "start_id";
+    }
+
     interface STATUS{
         int SUCCESS = 0;
         int ERROR = 11;

@@ -2,6 +2,7 @@ package com.aggarwalankur.capstone.quickreddit.data.responses;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -25,7 +26,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditPost{
+    public class RedditPost implements Serializable{
         @SerializedName("data")
         private RedditContent redditContent;
 
@@ -34,7 +35,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditPreview{
+    public class RedditPreview implements Serializable{
         @SerializedName("images")
         private ArrayList<RedditImage> redditImageList;
 
@@ -43,7 +44,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditImage{
+    public class RedditImage implements Serializable{
         @SerializedName("source")
         private RedditImageSource source;
 
@@ -52,7 +53,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditImageSource{
+    public class RedditImageSource implements Serializable{
         private String url;
 
         public String getUrl() {
@@ -60,7 +61,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditContent{
+    public class RedditContent implements Serializable{
         private String domain;
         private String subreddit;
         private String author;

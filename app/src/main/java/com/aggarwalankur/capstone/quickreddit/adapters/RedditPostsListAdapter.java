@@ -52,9 +52,9 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
                 + SEPARATOR_TEXT + Utils.getTimeString(redditContent.getCreatedUtc())
                 + SEPARATOR_TEXT + redditContent.getDomain();
 
-        String bottomBarText = mContext.getResources().getString(R.string.comments_text) + redditContent.getNumComments()
+        String bottomBarText = redditContent.getNumComments() + " " + mContext.getResources().getString(R.string.comments_text)
                 + SEPARATOR_TEXT
-                + mContext.getResources().getString(R.string.score_text) + redditContent.getScore();
+                + mContext.getResources().getString(R.string.score_text) + " " + redditContent.getScore();
 
         if (redditContent.getThumbnail() != null && !redditContent.getThumbnail().isEmpty()) {
             Picasso.with(mContext).load(redditContent.getThumbnail())

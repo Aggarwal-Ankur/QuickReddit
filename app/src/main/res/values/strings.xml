@@ -11,8 +11,8 @@
     <string name="text_hot">HOT</string>
     <string name="text_new">NEW</string>
     <string name="text_top">TOP</string>
-    <string name="comments_text">Comments : </string>
-    <string name="score_text">Score : </string>
+    <string name="comments_text">Comments</string>
+    <string name="score_text">Score :</string>
 
 
     <!-- Error/Info tasks -->
