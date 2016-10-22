@@ -3,6 +3,7 @@ package com.aggarwalankur.capstone.quickreddit.fragments;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,7 +15,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.activities.PostDetailActivity;
 import com.aggarwalankur.capstone.quickreddit.adapters.RedditPostsListAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.RedditPostContract;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
@@ -38,6 +41,8 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
     private List<RedditResponse.RedditPost> mRedditPostsList;
     private RedditPostsListAdapter mAdapter;
+    private String mTag;
+    private String mRedditsJson;
 
     @Override
     public void onAttach(Context context) {
@@ -61,8 +66,11 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         return mRootView;
     }
 
-    public void updateRedditContents(List<RedditResponse.RedditPost> redditPostsList){
+    public void updateRedditContents(String tag, String redditsJson, List<RedditResponse.RedditPost> redditPostsList){
         if(redditPostsList != null){
+            mTag = tag;
+            mRedditsJson = redditsJson;
+
             mRedditPostsList.clear();
             mRedditPostsList.addAll(redditPostsList);
             mAdapter.notifyDataSetChanged();
@@ -98,9 +106,15 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public void onRedditPostItemClicked(String tag) {
-        Log.d(TAG, "clicked : " + tag);
+    public void onRedditPostItemClicked(int clickedPosition) {
+        Log.d(TAG, "clicked : " + clickedPosition);
 
-        //Launch DSetails Activity Here
+        //Launch Details Activity Here
+        Intent detailsIntent = new Intent(mContext, PostDetailActivity.class);
+        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.JSON_STRING, mRedditsJson);
+        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.TYPE, mTag);
+        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.START_ID, clickedPosition);
+
+
     }
 }

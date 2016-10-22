@@ -3,16 +3,13 @@ package com.aggarwalankur.capstone.quickreddit.activities;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -33,6 +30,7 @@ import com.aggarwalankur.capstone.quickreddit.services.RedditTaskService;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +56,9 @@ public class MainActivity extends AppCompatActivity
 
     private LeftNavAdapter mLeftNavAdapter;
     private List<SubredditDTO> mDataItems;
+
+    private String mRedditsJson;
+    private String mTag = IConstants.LEFT_NAV_TAGS.MAIN_PAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,11 @@ public class MainActivity extends AppCompatActivity
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
 
+
+        //Display initial data
+        //TODO : get from the Settings
+        displayRedditItems();
+
     }
 
     private void showNetworkErrorToast() {
@@ -178,22 +184,27 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLeftNavItemClicked(String tag) {
         Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
+        mTag = tag;
+        displayRedditItems();
 
-        if(tag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
-            String url = REDDIT_URL.BASE_URL + REDDIT_URL.SUBURL_HOT + REDDIT_URL.SUBURL_JSON;
-            mDataFetchFragment.fetchRedditPostsByUrl(url);
-        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
-
-        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
-
-        }else if(tag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
-
-        }else{
-            String url = REDDIT_URL.BASE_URL + tag + REDDIT_URL.SUBURL_HOT  + REDDIT_URL.SUBURL_JSON;
-            mDataFetchFragment.fetchRedditPostsByUrl(url);
-        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+    }
+
+    private void displayRedditItems(){
+        if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
+            String url = REDDIT_URL.BASE_URL + REDDIT_URL.SUBURL_HOT + REDDIT_URL.SUBURL_JSON;
+            mDataFetchFragment.fetchRedditPostsByUrl(url);
+        }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
+
+        }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
+
+        }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
+
+        }else{
+            String url = REDDIT_URL.BASE_URL + mTag + REDDIT_URL.SUBURL_HOT  + REDDIT_URL.SUBURL_JSON;
+            mDataFetchFragment.fetchRedditPostsByUrl(url);
+        }
     }
 
     @Override
@@ -206,10 +217,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSubredditPostsFetchCompleted(RedditResponse redditPosts) {
-        if(redditPosts != null) {
+    public void onSubredditPostsFetchCompleted(String responseJson) {
+        if(responseJson != null) {
+            mRedditsJson = responseJson;
+            Gson gson = new Gson();
+            RedditResponse redditPosts = gson.fromJson(mRedditsJson, RedditResponse.class);
+
             Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
-            mMainViewFragment.updateRedditContents(redditPosts.getRedditData().getRedditPostList());
+
+            mMainViewFragment.updateRedditContents(mRedditsJson, redditPosts.getRedditData().getRedditPostList());
         }
     }
 }

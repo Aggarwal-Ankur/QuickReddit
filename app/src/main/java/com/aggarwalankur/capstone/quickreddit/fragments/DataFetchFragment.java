@@ -6,13 +6,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.data.SubredditDbHelper;
+import com.aggarwalankur.capstone.quickreddit.data.dto.RedditComment;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
 import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +33,7 @@ public class DataFetchFragment extends Fragment {
     public interface FetchCallbacks {
         void onSubredditListFetchCompleted(List<SubredditDTO> subredditList);
 
-        void onSubredditPostsFetchCompleted(RedditResponse redditPosts);
+        void onSubredditPostsFetchCompleted(String responseJson);
     }
 
     private static final String TAG = DataFetchFragment.class.getSimpleName();
@@ -39,6 +45,7 @@ public class DataFetchFragment extends Fragment {
 
     private SubredditListFetchTask mSubredditListFetchTask;
     private RedditPostsFetchTask mRedditPostsFetchTask;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,8 @@ public class DataFetchFragment extends Fragment {
         mRedditPostsFetchTask.execute(new String[]{url});
     }
 
+
+
     private class SubredditListFetchTask extends AsyncTask<Void, Void, List<SubredditDTO>> {
 
         @Override
@@ -96,12 +105,12 @@ public class DataFetchFragment extends Fragment {
     }
 
 
-    private class RedditPostsFetchTask extends AsyncTask<String, Void, RedditResponse>{
+    private class RedditPostsFetchTask extends AsyncTask<String, Void, String>{
 
         private OkHttpClient client;
 
         @Override
-        protected RedditResponse doInBackground(String... params) {
+        protected String doInBackground(String... params) {
             if(params == null || params[0] == null || params[0].isEmpty()){
                 return null;
             }
@@ -125,13 +134,9 @@ public class DataFetchFragment extends Fragment {
 
                 String responseJson = response.body().string();
 
-                Gson gson = new Gson();
-
-                RedditResponse mRedditResponse = gson.fromJson(responseJson, RedditResponse.class);
-
                 Log.d(TAG, "Details Json = " + responseJson);
 
-                return mRedditResponse;
+                return responseJson;
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -140,16 +145,19 @@ public class DataFetchFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(RedditResponse RedditResponse) {
-            super.onPostExecute(RedditResponse);
+        protected void onPostExecute(String responseJson) {
+            super.onPostExecute(responseJson);
 
             if(isCancelled()){
                 return;
             }
 
             if(mCallbackListener != null){
-                mCallbackListener.onSubredditPostsFetchCompleted(RedditResponse);
+                mCallbackListener.onSubredditPostsFetchCompleted(responseJson);
             }
         }
     }
+
+
+
 }

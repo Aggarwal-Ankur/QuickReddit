@@ -22,7 +22,7 @@ import java.util.List;
 public class PostDetailActivity extends AppCompatActivity {
     private static final String TAG = PostDetailActivity.class.getSimpleName();
 
-    private int mStartId;
+    private int mStartId = 0;
     private String feedJson;
     private String mType;
     private List<RedditResponse.RedditPost> mPostsList;
@@ -47,16 +47,19 @@ public class PostDetailActivity extends AppCompatActivity {
                     feedJson = getIntent().getExtras().getString(IConstants.INTENT_EXTRAS.JSON_STRING);
                     RedditResponse response = new Gson().fromJson(feedJson, RedditResponse.class);
                     mPostsList = response.getRedditData().getRedditPostList();
+
+                    mStartId = getIntent().getExtras().getInt(IConstants.INTENT_EXTRAS.START_ID);
                 }
             }
         }
 
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+        mPager.setCurrentItem(mStartId);
 
-        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+        /*mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
 
-        });
+        });*/
 
     }
 

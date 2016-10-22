@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsListAdapter.RedditPostsViewHolder> {
     public interface RedditPostItemClicked {
-        void onRedditPostItemClicked(String tag);
+        void onRedditPostItemClicked(int clickedPosition);
     }
 
     private static final String SUBEDDIT_PREFIX = "/r/";
@@ -68,11 +68,11 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
         holder.title.setText(redditContent.getTitle());
         holder.bottomBar.setText(bottomBarText);
 
-        holder.layout.setTag(redditContent.getIdentifier());
+        holder.layout.setTag(position);
         holder.layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRedditPostItemClickCallback.onRedditPostItemClicked((String) view.getTag());
+                mRedditPostItemClickCallback.onRedditPostItemClicked((int) view.getTag());
             }
         });
     }

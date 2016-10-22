@@ -73,6 +73,7 @@ public class RedditResponse {
         private RedditPreview preview;
         private String thumbnail;
         private String post_hint;
+        private String permalink;
         private String url;
         private String title;
         private long created_utc;
@@ -129,6 +130,10 @@ public class RedditResponse {
 
         public String getIdentifier() {
             return identifier;
+        }
+
+        public String getPermalink() {
+            return permalink;
         }
     }
 }
