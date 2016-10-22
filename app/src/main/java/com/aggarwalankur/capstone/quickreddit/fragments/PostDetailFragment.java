@@ -1,5 +1,7 @@
 package com.aggarwalankur.capstone.quickreddit.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -46,6 +48,7 @@ public class PostDetailFragment extends Fragment {
     private View mRootView;
     private TextView mCommentsTv;
     private LinearLayout mHolderLayout;
+    private Context mContext;
 
     public PostDetailFragment() {
     }
@@ -78,6 +81,13 @@ public class PostDetailFragment extends Fragment {
         return mRootView;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        mContext = context;
+    }
+
     private void bindViews() {
         if (mRootView == null) {
             return;
@@ -91,6 +101,7 @@ public class PostDetailFragment extends Fragment {
         TextView authorTv = (TextView) mRootView.findViewById(R.id.author);
         TextView postTimeTv = (TextView) mRootView.findViewById(R.id.post_time);
 
+        RelativeLayout imgHolder = (RelativeLayout) mRootView.findViewById(R.id.image_holder);
         ImageView postImage = (ImageView) mRootView.findViewById(R.id.post_img);
         ImageView playButton = (ImageView) mRootView.findViewById(R.id.play_button);
 
@@ -107,38 +118,44 @@ public class PostDetailFragment extends Fragment {
 
         String previewUrl = getPreviewUrl();
 
-        if (previewUrl != null) {
-            postImage.setVisibility(View.VISIBLE);
-            Glide.with(getActivity()).load(previewUrl)
-                    .asGif()
-                    .error(R.drawable.ic_placeholder_img)
-                    .into(postImage);
-        } else {
-            postImage.setVisibility(View.GONE);
-        }
-
-        if(showPlayButton()){
+        if(previewUrl != null && showPlayButton()){
             playButton.setVisibility(View.VISIBLE);
         }else{
             playButton.setVisibility(View.GONE);
         }
 
+        if (previewUrl != null) {
+            imgHolder.setVisibility(View.VISIBLE);
+            Glide.with(getActivity()).load(previewUrl)
+                    //.asGif()
+                    .error(R.drawable.ic_placeholder_img)
+                    .into(postImage);
+        } else {
+            imgHolder.setVisibility(View.GONE);
+        }
 
 
-        numCommentsTv.setText(mCurrentPost.getNumComments());
-        scoreTv.setText(mCurrentPost.getScore());
+
+
+
+        numCommentsTv.setText(Integer.toString(mCurrentPost.getNumComments()));
+        scoreTv.setText(Integer.toString(mCurrentPost.getScore()));
 
         fetchComments();
 
     }
 
     private String getPreviewUrl(){
-        String previewUrl = null;
+        if(mCurrentPost.getPreview() == null){
+            return null;
+        }
+        String previewUrl;
 
         try{
             previewUrl = mCurrentPost.getPreview().getRedditImageList().get(0).getSource().getUrl();
         }catch (Exception e){
             e.printStackTrace();
+            return null;
         }
 
         return previewUrl;
@@ -148,8 +165,7 @@ public class PostDetailFragment extends Fragment {
         boolean showPlayButton = false;
 
         String postHint = mCurrentPost.getPostHint();
-        if(getPreviewUrl() != null
-                && (postHint!= null && postHint.contains("video"))){
+        if(postHint!= null && postHint.contains("video")){
             showPlayButton = true;
         }
 
@@ -202,8 +218,8 @@ public class PostDetailFragment extends Fragment {
                 Log.d(TAG, "Comments Json = " + responseJson);
 
                 JSONArray inputJsonArray = new JSONArray(responseJson)
-                        .getJSONArray(0)
                         .getJSONObject(1)
+                        .getJSONObject("data")
                         .getJSONArray("children");
 
                 List<RedditComment> commentList = new ArrayList<>();
@@ -231,7 +247,7 @@ public class PostDetailFragment extends Fragment {
             }
 
             if(commentList == null || commentList.isEmpty()){
-                Toast.makeText(getActivity()
+                Toast.makeText(mContext
                         , getResources().getString(R.string.comments_error_toast)
                         , Toast.LENGTH_LONG).show();
 
@@ -241,7 +257,7 @@ public class PostDetailFragment extends Fragment {
             //Process the comments here
             mCommentsTv.setVisibility(View.GONE);
 
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+            LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
             String indentation = "     ";
 
             for(RedditComment comment : commentList){

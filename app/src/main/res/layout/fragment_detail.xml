@@ -102,6 +102,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/image_holder"
                 android:layout_width="match_parent"
                 android:layout_height="240dp">
 

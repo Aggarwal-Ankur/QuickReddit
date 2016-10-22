@@ -200,7 +200,8 @@ public class MainActivity extends AppCompatActivity
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
 
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
-
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
         }else{
             String url = REDDIT_URL.BASE_URL + mTag + REDDIT_URL.SUBURL_HOT  + REDDIT_URL.SUBURL_JSON;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
@@ -225,7 +226,7 @@ public class MainActivity extends AppCompatActivity
 
             Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
 
-            mMainViewFragment.updateRedditContents(mRedditsJson, redditPosts.getRedditData().getRedditPostList());
+            mMainViewFragment.updateRedditContents(mTag, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
         }
     }
 }

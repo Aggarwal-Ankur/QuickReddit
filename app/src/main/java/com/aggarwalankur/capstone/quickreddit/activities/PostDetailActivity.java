@@ -53,6 +53,7 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         }
 
+        mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         mPager.setCurrentItem(mStartId);

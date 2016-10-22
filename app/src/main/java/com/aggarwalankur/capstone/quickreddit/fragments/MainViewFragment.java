@@ -114,7 +114,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.JSON_STRING, mRedditsJson);
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.TYPE, mTag);
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.START_ID, clickedPosition);
-
+        startActivity(detailsIntent);
 
     }
 }
