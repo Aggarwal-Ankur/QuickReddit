@@ -13,6 +13,7 @@ public interface IConstants {
     interface ACTIONS {
         String ADD_SUBREDDIT = "add";
         String PERIODIC_SYNC = "sync";
+        String WIDGET = "widget";
     }
 
     interface INTENT_EXTRAS{

@@ -3,9 +3,11 @@ package com.aggarwalankur.capstone.quickreddit.activities;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -192,6 +194,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void displayRedditItems(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String suburlPreference = prefs.getString(this.getString(R.string.pref_widget_display_key),
+                this.getString(R.string.pref_widget_display_hot));
+
+
         if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
             String url = REDDIT_URL.BASE_URL + REDDIT_URL.SUBURL_HOT + REDDIT_URL.SUBURL_JSON;
             mDataFetchFragment.fetchRedditPostsByUrl(url);

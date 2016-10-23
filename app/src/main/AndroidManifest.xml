@@ -30,6 +30,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.aggarwalankur.capstone.quickreddit.activities.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.aggarwalankur.capstone.quickreddit.activities.MainActivity" />
+        </activity>
+        <activity android:name=".activities.WidgetConfigActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".services.RedditTaskService"
             android:exported="true"
@@ -38,6 +53,18 @@
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
             </intent-filter>
         </service>
+        <receiver
+            android:name=".widget.RedditWidgetProvider"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/widget_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+        </receiver>
     </application>
 
 </manifest>

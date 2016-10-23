@@ -30,4 +30,9 @@ public class RedditTaskService extends GcmTaskService {
     public int onRunTask(TaskParams taskParams) {
         return 0;
     }
+
+
+    private void updateWidgets(){
+
+    }
 }
