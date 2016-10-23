@@ -21,6 +21,8 @@ import com.aggarwalankur.capstone.quickreddit.activities.PostDetailActivity;
 import com.aggarwalankur.capstone.quickreddit.adapters.RedditPostsListAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.RedditPostContract;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +65,18 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         mAdapter = new RedditPostsListAdapter(getActivity(), mRedditPostsList, this);
         mRecyclerView.setAdapter(mAdapter);
 
+        loadBannerAd();
+
         return mRootView;
+    }
+
+    private void loadBannerAd(){
+        AdView mAdView = (AdView) mRootView.findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                .build();
+        mAdView.loadAd(adRequest);
     }
 
     public void updateRedditContents(String tag, String redditsJson, List<RedditResponse.RedditPost> redditPostsList){

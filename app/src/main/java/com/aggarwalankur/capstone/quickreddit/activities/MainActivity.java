@@ -21,6 +21,7 @@ import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
 import android.widget.Toast;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants;
+import com.aggarwalankur.capstone.quickreddit.QuickRedditApplication;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
@@ -121,6 +122,9 @@ public class MainActivity extends AppCompatActivity
         mDataFetchFragment.fetchSubscribedSubreddits();
 
         if (isConnected){
+            //If internet is connected, first task is to start GA tracking
+            ((QuickRedditApplication)getApplication()).startTracking();
+
             long period = 3600L;
             long flex = 10L;
             String periodicTag = "periodic";
