@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'signed_release'
+            keyPassword 'Oct@2016'
+            storeFile file('../keystore/mykeystore.jks')
+            storePassword 'Oct@2016'
+        }
+    }
     compileSdkVersion 23
     buildToolsVersion "24.0.1"
     defaultConfig {
@@ -15,6 +23,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }

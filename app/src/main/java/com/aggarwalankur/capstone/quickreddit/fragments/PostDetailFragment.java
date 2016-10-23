@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,12 +125,21 @@ public class PostDetailFragment extends Fragment {
             playButton.setVisibility(View.GONE);
         }
 
+        //TODO : Show preview instead
         if (previewUrl != null) {
             imgHolder.setVisibility(View.VISIBLE);
-            Glide.with(getActivity()).load(previewUrl)
-                    //.asGif()
-                    .error(R.drawable.ic_placeholder_img)
-                    .into(postImage);
+
+            if(previewUrl.contains(".gif")){
+                Glide.with(getActivity()).load(previewUrl)
+                        .asGif()
+                        .error(R.drawable.ic_placeholder_img)
+                        .into(postImage);
+            }else {
+                Glide.with(getActivity()).load(previewUrl)
+                        //.asGif()
+                        .error(R.drawable.ic_placeholder_img)
+                        .into(postImage);
+            }
         } else {
             imgHolder.setVisibility(View.GONE);
         }
@@ -149,6 +159,10 @@ public class PostDetailFragment extends Fragment {
         if(mCurrentPost.getPreview() == null){
             return null;
         }
+        if(mCurrentPost.getUrl() != null && mCurrentPost.getUrl().contains(".gif")){
+            return mCurrentPost.getUrl();
+        }
+
         String previewUrl;
 
         try{
@@ -284,7 +298,7 @@ public class PostDetailFragment extends Fragment {
 
 
                 topRowTv.setText(comment.getAuthor() + "  \u25aa  " + comment.getDate());
-                commentTv.setText(comment.getText());
+                commentTv.setText(Html.fromHtml(comment.getText()));
 
                 mHolderLayout.addView(commentLayout);
 
@@ -319,7 +333,7 @@ public class PostDetailFragment extends Fragment {
         private RedditComment parseComments(JSONObject data, int depth){
             RedditComment comment=new RedditComment();
             try{
-                comment.setText(data.getString("body_html"));
+                comment.setText(data.getString("body"));
                 comment.setAuthor(data.getString("author"));
                 comment.setDate(Utils.getTimeString((long)data.getDouble("created_utc")));
                 comment.setDepth(depth);
