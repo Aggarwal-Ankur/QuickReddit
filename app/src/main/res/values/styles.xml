@@ -14,4 +14,19 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+
+    <style name="SearchText">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:textSize">@dimen/search_box_textsize</item>
+    </style>
+
+    <style name="SearchSuggestionItem">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/grey700</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:textSize">@dimen/search_suggestion_size</item>
+    </style>
+
 </resources>
