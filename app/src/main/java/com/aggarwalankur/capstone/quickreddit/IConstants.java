@@ -49,5 +49,8 @@ public interface IConstants {
         String SUBURL_TOP = "/top";
 
         String SUBURL_JSON = "/.json";
+
+        String PARAMS_SEPARATOR = "?";
+        String LIMIT_PARAM = "limit=1";
     }
 }

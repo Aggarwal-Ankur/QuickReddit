@@ -33,6 +33,8 @@ public class RedditPostContract {
         public static final String COLUMN_SUBREDDIT = "subreddit";
         public static final String COLUMN_CREATED_UTC = "created_utc";
         public static final String COLUMN_URL = "url";
+        public static final String COLUMN_POST_HINT = "post_hint";
+        public static final String COLUMN_PERMALINK = "permalink";
         public static final String COLUMN_PREVIEW_IMG = "preview_img";
         public static final String COLUMN_POST_TYPE = "type";
 
@@ -46,6 +48,8 @@ public class RedditPostContract {
                 COLUMN_SUBREDDIT,
                 COLUMN_CREATED_UTC,
                 COLUMN_URL,
+                COLUMN_POST_HINT,
+                COLUMN_PERMALINK,
                 COLUMN_PREVIEW_IMG,
                 COLUMN_POST_TYPE
         };

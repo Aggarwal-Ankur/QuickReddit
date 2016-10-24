@@ -21,10 +21,10 @@ import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.data.dto.RedditComment;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
-import com.bumptech.glide.Glide;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -128,18 +128,9 @@ public class PostDetailFragment extends Fragment {
         //TODO : Show preview instead
         if (previewUrl != null) {
             imgHolder.setVisibility(View.VISIBLE);
-
-            if(previewUrl.contains(".gif")){
-                Glide.with(getActivity()).load(previewUrl)
-                        .asGif()
-                        .error(R.drawable.ic_placeholder_img)
-                        .into(postImage);
-            }else {
-                Glide.with(getActivity()).load(previewUrl)
-                        //.asGif()
-                        .error(R.drawable.ic_placeholder_img)
-                        .into(postImage);
-            }
+            Picasso.with(getActivity()).load(previewUrl)
+                    .error(R.drawable.ic_placeholder_img)
+                    .into(postImage);
         } else {
             imgHolder.setVisibility(View.GONE);
         }
@@ -158,9 +149,6 @@ public class PostDetailFragment extends Fragment {
     private String getPreviewUrl(){
         if(mCurrentPost.getPreview() == null){
             return null;
-        }
-        if(mCurrentPost.getUrl() != null && mCurrentPost.getUrl().contains(".gif")){
-            return mCurrentPost.getUrl();
         }
 
         String previewUrl;

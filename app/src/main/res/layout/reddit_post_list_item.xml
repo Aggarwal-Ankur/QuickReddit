@@ -50,6 +50,7 @@
             android:textColor="@color/grey700"/>
 
         <View
+            android:id="@+id/bottom_divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/grey400"/>

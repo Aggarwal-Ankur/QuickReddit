@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -57,7 +57,7 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
                 + mContext.getResources().getString(R.string.score_text) + " " + redditContent.getScore();
 
         if (redditContent.getThumbnail() != null && !redditContent.getThumbnail().isEmpty()) {
-            Glide.with(mContext).load(redditContent.getThumbnail())
+            Picasso.with(mContext).load(redditContent.getThumbnail())
                     .error(R.drawable.ic_placeholder_img)
                     .into(holder.previewImg);
         } else {

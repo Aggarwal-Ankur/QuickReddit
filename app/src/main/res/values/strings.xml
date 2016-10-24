@@ -44,9 +44,9 @@
     <string name="pref_widget_display_label_new" >NEW</string>
     <string name="pref_widget_display_label_top" >TOP</string>
     <string name="pref_widget_display_key" translatable="false">widget_display</string>
-    <string name="pref_widget_display_hot" translatable="false">hot</string>
-    <string name="pref_widget_display_new" translatable="false">new</string>
-    <string name="pref_widget_display_top" translatable="false">top</string>
+    <string name="pref_widget_display_hot" translatable="false">0</string>
+    <string name="pref_widget_display_new" translatable="false">1</string>
+    <string name="pref_widget_display_top" translatable="false">2</string>
 
     <string name="pref_sync_frequency_key" translatable="false">sync_frequency</string>
     <string name="pref_title_sync_frequency">Sync frequency</string>

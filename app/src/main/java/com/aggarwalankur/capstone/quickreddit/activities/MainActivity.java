@@ -199,8 +199,8 @@ public class MainActivity extends AppCompatActivity
 
     private void displayRedditItems(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String suburlPreference = prefs.getString(this.getString(R.string.pref_widget_display_key),
-                this.getString(R.string.pref_widget_display_hot));
+        int suburlPreference = prefs.getInt(this.getString(R.string.pref_widget_display_key),
+                Integer.parseInt(this.getString(R.string.pref_widget_display_hot)));
 
 
         if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){

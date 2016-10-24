@@ -45,7 +45,8 @@ public class DataFetchService extends IntentService {
 
         Bundle args = new Bundle();
         if (intent.getStringExtra(IConstants.IDENTIFFIERS.ACTION).equals(IConstants.ACTIONS.ADD_SUBREDDIT)) {
-            args.putString(IConstants.IDENTIFFIERS.SUBREDDIT, intent.getStringExtra(IConstants.IDENTIFFIERS.SUBREDDIT));
+            args.putSerializable(IConstants.IDENTIFFIERS.SUBREDDIT,
+                    intent.getSerializableExtra(IConstants.IDENTIFFIERS.SUBREDDIT));
         }
         // We can call OnRunTask from the intent service to force it to run immediately instead of
         // scheduling a task.

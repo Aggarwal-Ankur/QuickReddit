@@ -33,7 +33,9 @@ public class DbHelper extends SQLiteOpenHelper {
                 RedditPostContract.RedditPost.COLUMN_OVER_18 + " INTEGER, " +
                 RedditPostContract.RedditPost.COLUMN_SUBREDDIT + " TEXT NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_CREATED_UTC + " INTEGER NOT NULL, " +
-                RedditPostContract.RedditPost.COLUMN_URL + " TEXT NOT NULL, " +
+                RedditPostContract.RedditPost.COLUMN_POST_HINT + " TEXT, " +
+                RedditPostContract.RedditPost.COLUMN_PERMALINK + " TEXT, " +
+                RedditPostContract.RedditPost.COLUMN_URL + " TEXT, " +
                 RedditPostContract.RedditPost.COLUMN_PREVIEW_IMG + " TEXT, " +
                 RedditPostContract.RedditPost.COLUMN_POST_TYPE + " INTEGER);";
 
