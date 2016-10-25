@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.text.ICUCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -182,7 +183,10 @@ public class PostDetailFragment extends Fragment {
 
         String url = IConstants.REDDIT_URL.BASE_URL
                 + mCurrentPost.getPermalink()
-                + IConstants.REDDIT_URL.SUBURL_JSON;
+                + IConstants.REDDIT_URL.SUBURL_JSON
+                + IConstants.REDDIT_URL.PARAMS_SEPARATOR
+                + IConstants.REDDIT_URL.COMMENTS_LIMIT_PARAM
+                + "&" + IConstants.REDDIT_URL.COMMENTS_DEPTH_PARAM;
 
         mRedditCommentsFetchTask = new RedditCommentsFetchTask();
         mRedditCommentsFetchTask.execute(new String[]{url});

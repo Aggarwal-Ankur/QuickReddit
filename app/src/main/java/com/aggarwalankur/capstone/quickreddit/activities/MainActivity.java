@@ -2,33 +2,48 @@ package com.aggarwalankur.capstone.quickreddit.activities;
 
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
+
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.QuickRedditApplication;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
+import com.aggarwalankur.capstone.quickreddit.adapters.SimpleTextAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
 import com.aggarwalankur.capstone.quickreddit.fragments.DataFetchFragment;
 import com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment;
 import com.aggarwalankur.capstone.quickreddit.services.DataFetchService;
+import com.aggarwalankur.capstone.quickreddit.services.RedditRestClient;
 import com.aggarwalankur.capstone.quickreddit.services.RedditTaskService;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
@@ -62,6 +77,11 @@ public class MainActivity extends AppCompatActivity
 
     private String mRedditsJson;
     private String mTag = IConstants.LEFT_NAV_TAGS.MAIN_PAGE;
+    private List<String> mSearchSuggestionList;
+    private RecyclerView mSearchSuggestionRv;
+    private SimpleTextAdapter mSearchSuggestionAdapter;
+    private AlertDialog mAddSubredditDialog;
+    private RedditRestClient mRestClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +112,10 @@ public class MainActivity extends AppCompatActivity
         mDataItems = new ArrayList<>();
         mLeftNavAdapter = new LeftNavAdapter(this, mDataItems, this);
         leftNavListView.setAdapter(mLeftNavAdapter);
+
+        mRestClient = new RedditRestClient();
+        //All tasks related to the dialog
+        setupAddSubredditDialog();
 
 
         //Setup the Reddit data service
@@ -142,6 +166,9 @@ public class MainActivity extends AppCompatActivity
             // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
             // are updated.
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
+
+
+            mRestClient.getSubreddit("cricket", null);
         }
 
 
@@ -209,7 +236,7 @@ public class MainActivity extends AppCompatActivity
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
 
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
-
+            mAddSubredditDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
@@ -218,6 +245,51 @@ public class MainActivity extends AppCompatActivity
             mDataFetchFragment.fetchRedditPostsByUrl(url);
         }
     }
+
+    private void setupAddSubredditDialog(){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.add_subreddit_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        mSearchSuggestionRv = (RecyclerView) dialogView.findViewById(R.id.search_results_recyclerview);
+        mSearchSuggestionList = new ArrayList<>();
+        mSearchSuggestionAdapter = new SimpleTextAdapter(mSearchSuggestionList);
+
+        EditText searchInput = (EditText)dialogView.findViewById(R.id.search_text_src);
+        searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    InputMethodManager imm =(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(),InputMethodManager.RESULT_UNCHANGED_SHOWN);
+
+                    String query = v.getText().toString().trim();
+                    if (query.length()>2){
+                        mRestClient.getSubreddit(query, null);
+                    }else{
+                        Toast.makeText(MainActivity.this, R.string.too_many_results, Toast.LENGTH_SHORT).show();
+                    }
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //do something with edt.getText().toString();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //pass
+            }
+        });
+        mAddSubredditDialog = dialogBuilder.create();
+    }
+
 
     @Override
     public void onSubredditListFetchCompleted(List<SubredditDTO> subredditList) {

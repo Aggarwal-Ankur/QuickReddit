@@ -43,14 +43,34 @@ public interface IConstants {
 
     interface REDDIT_URL{
         String BASE_URL = "http://www.reddit.com";
+        String BASE_URL_OAUTH = "https://oauth.reddit.com";
 
         String SUBURL_HOT = "/hot";
         String SUBURL_NEW = "/new";
         String SUBURL_TOP = "/top";
+        String SUBURL_SEARCH_NAMES = "/api/search_reddit_names";
+        String SUBURL_GET_TOKEN = "v1/access_token";
 
-        String SUBURL_JSON = "/.json";
+        String SUBURL_JSON = ".json";
 
         String PARAMS_SEPARATOR = "?";
         String LIMIT_PARAM = "limit=1";
+        String COMMENTS_LIMIT_PARAM = "limit=50";
+        String COMMENTS_DEPTH_PARAM = "depth=4";
+
+        String REDIRECT_URI = "redirect_uri";
+        String DEVICE_ID = "device_id";
+        String EXACT = "exact";
+        String OVER_18 = "include_over_18";
+        String QUERY = "query";
+        String GRANT_TYPE = "grant_type";
+    }
+
+    interface AUTH_PARAMS{
+        String USER_AGENT = "android:com.aggarwalankur.capstone.quickreddit:v1.0.0 (by /u/Ankur_Aggarwal)";
+        String CLIENT_ID = "zkqr3uaDu5eWOQ";
+        String CLIENT_SECRET = "";
+        String REDIRECT_URI = "quickreddit://com.aggarwalankur.capstone.quickreddit";
+        String GRANT_TYPE = "https://oauth.reddit.com/grants/installed_client";
     }
 }

@@ -18,7 +18,7 @@
         style="@style/SearchText"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/search_results_view"
+        android:id="@+id/search_results_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:listitem="@layout/search_suggestion_item"/>
