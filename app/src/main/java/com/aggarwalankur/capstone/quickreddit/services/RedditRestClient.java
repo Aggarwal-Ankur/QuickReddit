@@ -1,19 +1,23 @@
 package com.aggarwalankur.capstone.quickreddit.services;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants.AUTH_PARAMS;
 import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
+import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.squareup.okhttp.internal.Util;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.message.BasicHeader;
@@ -26,47 +30,75 @@ public class RedditRestClient {
 
     private static String NAME_KEY = "names";
 
+    private Context mContext;
     private static AsyncHttpClient mHttpClient = new AsyncHttpClient();
+    private static final String DEVICE_ID = UUID.randomUUID().toString();
 
-    public RedditRestClient() {
+    public RedditRestClient(Context context) {
+        this.mContext = context;
     }
 
     private static String getAbsoluteUrl(boolean isOauth, String relativeUrl) {
-        if (isOauth)
+        if (isOauth) {
             return REDDIT_URL.BASE_URL_OAUTH + relativeUrl;
-        else
+        }else {
             return REDDIT_URL.BASE_URL + relativeUrl;
+        }
     }
 
-    private static void post(String url, boolean oauth, RequestParams params,
-                            AsyncHttpResponseHandler responseHandler) {
-        mHttpClient.post(getAbsoluteUrl(oauth, url), params, responseHandler);
+    private void post(String url, boolean oauth, Header[] headers, RequestParams params,
+                      AsyncHttpResponseHandler responseHandler) {
+        mHttpClient.post(mContext, getAbsoluteUrl(oauth, url), headers, params, null, responseHandler);
     }
 
-    public void getToken(String relativeUrl, String deviceId)
-            throws JSONException {
+    public void getTokenAndMakeRequestAgain(final String query, final SearchSubredditResponseListener listener) {
         mHttpClient.setBasicAuth(AUTH_PARAMS.CLIENT_ID, AUTH_PARAMS.CLIENT_SECRET);
 
         RequestParams requestParams = new RequestParams();
         requestParams.put(REDDIT_URL.GRANT_TYPE, AUTH_PARAMS.GRANT_TYPE);
-        requestParams.put(REDDIT_URL.REDIRECT_URI, AUTH_PARAMS.REDIRECT_URI);
-        requestParams.put(REDDIT_URL.DEVICE_ID, deviceId);
+        //requestParams.put(REDDIT_URL.REDIRECT_URI, AUTH_PARAMS.REDIRECT_URI);
+        requestParams.put(REDDIT_URL.DEVICE_ID, RedditRestClient.DEVICE_ID);
 
-        post(relativeUrl, false, requestParams, new JsonHttpResponseHandler() {
+        post(REDDIT_URL.SUBURL_GET_TOKEN, false, null, requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.i(TAG, "Success. Response: " + response.toString());
+
+                String accessToken = null;
+
+                try{
+                    accessToken = response.getString(REDDIT_URL.ACCESS_TOKEN);
+                    Utils.saveStringPreference(mContext, REDDIT_URL.ACCESS_TOKEN, accessToken);
+                    searchSubredditNames(query, listener);
+                }catch (Exception e){
+                    e.printStackTrace();
+
+                    //Null represents failure
+                    listener.OnGetSubredditSearchResponse(null);
+                }
+
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable,
                                   JSONObject errorResponse) {
                 Log.i(TAG, "Failure. Status code: " + statusCode);
+
+                //Null represents failure
+                listener.OnGetSubredditSearchResponse(null);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.i(TAG, "Failure. Status code: " + statusCode);
+
+                //Null represents failure
+                listener.OnGetSubredditSearchResponse(null);
             }
         });
     }
 
-    public void getSubreddit(String query, final SearchSubredditResponseListener listener) {
+    public void searchSubredditNames(final String query, final SearchSubredditResponseListener listener) {
         RequestParams requestParams = new RequestParams();
         requestParams.put(REDDIT_URL.EXACT, false);
         requestParams.put(REDDIT_URL.OVER_18, false);
@@ -74,16 +106,26 @@ public class RedditRestClient {
 
         String url = REDDIT_URL.SUBURL_SEARCH_NAMES + REDDIT_URL.SUBURL_JSON;
 
-        post(url, true, requestParams, new JsonHttpResponseHandler() {
+        post(url, true, prepareHeaders(), requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.i(TAG, "Success. Response: " + response.toString());
                 try {
-                    String name = response.getString(NAME_KEY);
-                    Log.i(TAG, "name: " + name);
-                    //listener.OnGetSubredditSearchResponse(true, name);
+                    JSONArray names = response.getJSONArray(NAME_KEY);
+
+                    List<String> nameList = new ArrayList<String>();
+
+                    for(int i=0; i<names.length(); i++){
+                        String currentName = names.getString(i);
+                        nameList.add(currentName);
+                    }
+
+                    listener.OnGetSubredditSearchResponse(nameList);
                 } catch (JSONException j) {
                     j.printStackTrace();
+
+                    //Null represents failure
+                    listener.OnGetSubredditSearchResponse(null);
                 }
             }
 
@@ -91,25 +133,34 @@ public class RedditRestClient {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable,
                                   JSONObject errorResponse) {
                 Log.i(TAG, "status code: " + statusCode);
-                //listener.OnGetSubredditSearchResponse(false, Integer.toString(statusCode));
+
+                if(statusCode == 401){
+                    //This is auth error. Lets get a fresh token first
+                    getTokenAndMakeRequestAgain(query, listener);
+                }else{
+                    //Null represents failure
+                    listener.OnGetSubredditSearchResponse(null);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-
                 Log.i(TAG, "status code: " + statusCode);
+
+                //Null represents failure
+                listener.OnGetSubredditSearchResponse(null);
             }
         });
     }
 
-    /*private Header[] getHeaders() {
+    private Header[] prepareHeaders() {
         Header[] headers = new Header[2];
-        headers[0] = new BasicHeader("User-Agent", REDDIT_URL.USER_AGENT);
+        headers[0] = new BasicHeader("User-Agent", AUTH_PARAMS.USER_AGENT);
         headers[1] = new BasicHeader("Authorization", "bearer " +
-                Util.getSharedString(mContext, API_ACCESS_TOKEN));
+                Utils.getStringPreference(mContext, REDDIT_URL.ACCESS_TOKEN));
         return headers;
-    }*/
+    }
 
     public interface SearchSubredditResponseListener {
         void OnGetSubredditSearchResponse(List<String> names);

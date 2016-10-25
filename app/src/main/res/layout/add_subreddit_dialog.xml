@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/search_box_height"
         android:maxLines="1"
+        android:inputType="text"
         android:imeOptions="actionSearch"
         android:hint="@string/search_text_hint"
         style="@style/SearchText"/>

@@ -9,22 +9,21 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
+import com.aggarwalankur.capstone.quickreddit.IConstants.POST_TYPE;
 
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -57,7 +56,9 @@ import java.util.List;
  * Tutorial used : https://developer.android.com/training/load-data-background/index.html
  */
 public class MainActivity extends AppCompatActivity
-        implements LeftNavAdapter.LeftNavItemClickCallback, DataFetchFragment.FetchCallbacks {
+        implements LeftNavAdapter.LeftNavItemClickCallback,
+        DataFetchFragment.FetchCallbacks,
+        RedditRestClient.SearchSubredditResponseListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity
         mLeftNavAdapter = new LeftNavAdapter(this, mDataItems, this);
         leftNavListView.setAdapter(mLeftNavAdapter);
 
-        mRestClient = new RedditRestClient();
+        mRestClient = new RedditRestClient(this);
         //All tasks related to the dialog
         setupAddSubredditDialog();
 
@@ -166,9 +167,6 @@ public class MainActivity extends AppCompatActivity
             // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
             // are updated.
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
-
-
-            mRestClient.getSubreddit("cricket", null);
         }
 
 
@@ -226,12 +224,29 @@ public class MainActivity extends AppCompatActivity
 
     private void displayRedditItems(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int suburlPreference = prefs.getInt(this.getString(R.string.pref_widget_display_key),
-                Integer.parseInt(this.getString(R.string.pref_widget_display_hot)));
+        int displayTypePreference = Integer.parseInt(prefs.getString(this.getString(R.string.pref_widget_display_key),
+                this.getString(R.string.pref_widget_display_hot)));
+
+
+        String displayType = REDDIT_URL.SUBURL_HOT;
+
+        switch (displayTypePreference){
+            case POST_TYPE.HOT :
+                displayType = REDDIT_URL.SUBURL_HOT;
+                break;
+            case POST_TYPE.NEW :
+                displayType = REDDIT_URL.SUBURL_NEW;
+                break;
+            case POST_TYPE.TOP :
+                displayType = REDDIT_URL.SUBURL_TOP;
+                break;
+            default:
+                break;
+        }
 
 
         if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
-            String url = REDDIT_URL.BASE_URL + REDDIT_URL.SUBURL_HOT + REDDIT_URL.SUBURL_JSON;
+            String url = REDDIT_URL.BASE_URL + displayType + REDDIT_URL.SUBURL_JSON;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
 
@@ -241,7 +256,7 @@ public class MainActivity extends AppCompatActivity
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
         }else{
-            String url = REDDIT_URL.BASE_URL + mTag + REDDIT_URL.SUBURL_HOT  + REDDIT_URL.SUBURL_JSON;
+            String url = REDDIT_URL.BASE_URL + mTag + displayType  + REDDIT_URL.SUBURL_JSON;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
         }
     }
@@ -256,6 +271,9 @@ public class MainActivity extends AppCompatActivity
         mSearchSuggestionList = new ArrayList<>();
         mSearchSuggestionAdapter = new SimpleTextAdapter(mSearchSuggestionList);
 
+        mSearchSuggestionRv.setLayoutManager(new LinearLayoutManager(this));
+        mSearchSuggestionRv.setAdapter(mSearchSuggestionAdapter);
+
         EditText searchInput = (EditText)dialogView.findViewById(R.id.search_text_src);
         searchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -266,11 +284,10 @@ public class MainActivity extends AppCompatActivity
 
                     String query = v.getText().toString().trim();
                     if (query.length()>2){
-                        mRestClient.getSubreddit(query, null);
+                        mRestClient.searchSubredditNames(query, MainActivity.this);
                     }else{
                         Toast.makeText(MainActivity.this, R.string.too_many_results, Toast.LENGTH_SHORT).show();
                     }
-
                     return true;
                 }
                 return false;
@@ -310,6 +327,19 @@ public class MainActivity extends AppCompatActivity
             Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
 
             mMainViewFragment.updateRedditContents(mTag, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
+        }
+    }
+
+    @Override
+    public void OnGetSubredditSearchResponse(List<String> names) {
+        if(names != null){
+            Log.d(TAG, "Name list size =" + names.size());
+
+            mSearchSuggestionList.clear();
+            mSearchSuggestionList.addAll(names);
+            mSearchSuggestionAdapter.notifyDataSetChanged();
+        }else{
+            Toast.makeText(this, getResources().getString(R.string.error_fetching_subreddits), Toast.LENGTH_LONG).show();
         }
     }
 }

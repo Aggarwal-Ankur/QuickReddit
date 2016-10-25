@@ -28,9 +28,9 @@ public interface IConstants {
     }
 
     interface POST_TYPE{
-        int HOT = 11;
-        int NEW = 12;
-        int TOP = 13;
+        int HOT = 0;
+        int NEW = 1;
+        int TOP = 2;
 
     }
 
@@ -42,14 +42,14 @@ public interface IConstants {
     }
 
     interface REDDIT_URL{
-        String BASE_URL = "http://www.reddit.com";
+        String BASE_URL = "https://www.reddit.com";
         String BASE_URL_OAUTH = "https://oauth.reddit.com";
 
         String SUBURL_HOT = "/hot";
         String SUBURL_NEW = "/new";
         String SUBURL_TOP = "/top";
         String SUBURL_SEARCH_NAMES = "/api/search_reddit_names";
-        String SUBURL_GET_TOKEN = "v1/access_token";
+        String SUBURL_GET_TOKEN = "/api/v1/access_token";
 
         String SUBURL_JSON = ".json";
 
@@ -64,6 +64,7 @@ public interface IConstants {
         String OVER_18 = "include_over_18";
         String QUERY = "query";
         String GRANT_TYPE = "grant_type";
+        String ACCESS_TOKEN = "access_token";
     }
 
     interface AUTH_PARAMS{

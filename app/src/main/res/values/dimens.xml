@@ -13,7 +13,7 @@
     <dimen name="search_box_height">56dp</dimen>
     <dimen name="horizontal_padding">12dp</dimen>
     <dimen name="vertical_padding">4dp</dimen>
-    <dimen name="search_box_textsize">14dp</dimen>
-    <dimen name="search_suggestion_size">14dp</dimen>
+    <dimen name="search_box_textsize">18dp</dimen>
+    <dimen name="search_suggestion_size">16dp</dimen>
 
 </resources>

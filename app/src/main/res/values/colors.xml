@@ -5,6 +5,7 @@
     <color name="amber500">#FFC107</color>
     <color name="amber200">#ffe082</color>
     <color name="white">#ffffff</color>
+    <color name="transparent">#00ffffff</color>
     <color name="black">#000000</color>
     <color name="grey700">#616161</color>
     <color name="grey400">#bdbdbd</color>

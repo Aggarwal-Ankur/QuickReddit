@@ -8,13 +8,14 @@
     android:paddingLeft="@dimen/horizontal_padding"
     android:paddingEnd="@dimen/horizontal_padding"
     android:paddingRight="@dimen/horizontal_padding"
+    android:clickable="true"
     android:background="@drawable/list_item_selector"
     >
 
     <TextView
         android:id="@+id/suggestion_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         style="@style/SearchSuggestionItem"/>
 
 </LinearLayout>

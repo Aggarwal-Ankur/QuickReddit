@@ -25,6 +25,7 @@
     <string name="service_error_toast">Error fetching data!</string>
     <string name="comments_error_toast">Error fetching comments!</string>
     <string name="too_many_results">Too many results</string>
+    <string name="error_fetching_subreddits">Error fetching subreddit list</string>
 
 
     <!--Content Descriptions-->
