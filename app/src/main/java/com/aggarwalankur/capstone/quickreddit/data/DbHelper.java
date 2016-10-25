@@ -47,10 +47,10 @@ public class DbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_REDDITPOST_TABLE);
         sqLiteDatabase.execSQL(CREATE_SUBREDDIT_TABLE);
 
-        testSubredditTable(sqLiteDatabase);
+        //TODO : Testing only
+        //testSubredditTable(sqLiteDatabase);
     }
 
-    //TODO : Remove after testing
     public static void testSubredditTable(SQLiteDatabase sqLiteDatabase){
         ContentValues testValues = new ContentValues();
         testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Gifs");

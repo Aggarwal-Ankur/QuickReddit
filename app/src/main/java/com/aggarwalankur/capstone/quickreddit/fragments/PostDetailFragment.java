@@ -126,7 +126,6 @@ public class PostDetailFragment extends Fragment {
             playButton.setVisibility(View.GONE);
         }
 
-        //TODO : Show preview instead
         if (previewUrl != null) {
             imgHolder.setVisibility(View.VISIBLE);
             Picasso.with(getActivity()).load(previewUrl)
@@ -136,15 +135,10 @@ public class PostDetailFragment extends Fragment {
             imgHolder.setVisibility(View.GONE);
         }
 
-
-
-
-
         numCommentsTv.setText(Integer.toString(mCurrentPost.getNumComments()));
         scoreTv.setText(Integer.toString(mCurrentPost.getScore()));
 
         fetchComments();
-
     }
 
     private String getPreviewUrl(){

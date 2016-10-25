@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content">
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@color/white">
 
     <View
         android:id="@+id/divider"
@@ -11,7 +12,6 @@
 
     <TextView
         android:id="@+id/indent"
-        android:text="     "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/divider"
@@ -20,20 +20,21 @@
 
     <TextView
         android:id="@+id/top_row"
-        android:text="Sample Top"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/divider"
         android:layout_toEndOf="@id/indent"
-        android:layout_toRightOf="@id/indent"/>
+        android:layout_toRightOf="@id/indent"
+        style="@style/SecondaryText"/>
 
     <TextView
         android:id="@+id/reddit_comment"
-        android:text="Sample reddit Comment"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/top_row"
         android:layout_toEndOf="@id/indent"
-        android:layout_toRightOf="@id/indent"/>
+        android:layout_toRightOf="@id/indent"
+        android:autoLink="all"
+        style="@style/PrimaryText"/>
 
 </RelativeLayout>
