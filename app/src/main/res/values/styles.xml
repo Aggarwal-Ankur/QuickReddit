@@ -28,6 +28,8 @@
     </style>
 
     <style name="PrimaryTextComment" parent="PrimaryText">
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">@dimen/primary_text_padding_vertical</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingRight">0dp</item>
@@ -48,6 +50,9 @@
     </style>
 
     <style name="SecondaryTextComment" parent="SecondaryText">
+        <item name="android:layout_marginTop">@dimen/secondary_text_padding_vertical</item>
+        <item name="android:paddingTop">@dimen/secondary_text_padding_vertical</item>
+        <item name="android:paddingBottom">0dp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingRight">0dp</item>

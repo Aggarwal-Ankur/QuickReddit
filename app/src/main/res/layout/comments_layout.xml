@@ -25,7 +25,7 @@
         android:layout_below="@id/divider"
         android:layout_toEndOf="@id/indent"
         android:layout_toRightOf="@id/indent"
-        style="@style/SecondaryText"/>
+        style="@style/SecondaryTextComment"/>
 
     <TextView
         android:id="@+id/reddit_comment"
@@ -35,6 +35,6 @@
         android:layout_toEndOf="@id/indent"
         android:layout_toRightOf="@id/indent"
         android:autoLink="all"
-        style="@style/PrimaryText"/>
+        style="@style/PrimaryTextComment"/>
 
 </RelativeLayout>

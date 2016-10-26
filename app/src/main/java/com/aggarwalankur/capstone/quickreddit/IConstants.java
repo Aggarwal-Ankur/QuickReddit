@@ -28,6 +28,8 @@ public interface IConstants {
     }
 
     interface POST_TYPE{
+        String POST_TYPE_PREF_KEY = "post_type";
+
         int HOT = 0;
         int NEW = 1;
         int TOP = 2;

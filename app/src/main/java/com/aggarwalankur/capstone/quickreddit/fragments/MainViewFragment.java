@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.activities.PostDetailActivity;
 import com.aggarwalankur.capstone.quickreddit.adapters.RedditPostsListAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.RedditPostContract;
@@ -33,12 +37,18 @@ import java.util.List;
 public class MainViewFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         RedditPostsListAdapter.RedditPostItemClicked {
 
+    public interface OnPostTypeSelectedListener{
+        void OnPostTypeSelected(int postType);
+    }
+
     private static final String TAG = MainViewFragment.class.getSimpleName();
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
 
     private View mRootView;
     private Context mContext;
+    private OnPostTypeSelectedListener mCallBackListener;
 
+    private TabLayout mPostTypeTabs;
     private RecyclerView mRecyclerView;
 
     private List<RedditResponse.RedditPost> mRedditPostsList;
@@ -51,6 +61,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         super.onAttach(context);
 
         mContext = context;
+        mCallBackListener = (OnPostTypeSelectedListener)context;
     }
 
     @Override
@@ -59,15 +70,68 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         // Inflate the layout for this fragment
         mRootView = inflater.inflate(R.layout.content_main, container, false);
 
+        mPostTypeTabs = (TabLayout) mRootView.findViewById(R.id.post_type_selection);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.reddit_posts_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mRedditPostsList = new ArrayList<>();
         mAdapter = new RedditPostsListAdapter(getActivity(), mRedditPostsList, this);
         mRecyclerView.setAdapter(mAdapter);
 
+        setupPostTypeTabs();
         loadBannerAd();
 
         return mRootView;
+    }
+
+    private void setupPostTypeTabs(){
+        Resources r = getActivity().getResources();
+        String hotTabText = r.getString(R.string.text_hot);
+        String newTabText = r.getString(R.string.text_new);
+        String topTabText = r.getString(R.string.text_top);
+
+        TabLayout.Tab hotTab = mPostTypeTabs.newTab().setText(hotTabText);
+        TabLayout.Tab newTab = mPostTypeTabs.newTab().setText(newTabText);
+        TabLayout.Tab topTab = mPostTypeTabs.newTab().setText(topTabText);
+
+        mPostTypeTabs.addTab(hotTab);
+        mPostTypeTabs.addTab(newTab);
+        mPostTypeTabs.addTab(topTab);
+
+        mPostTypeTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Utils.saveIntegerPreference(mContext, IConstants.POST_TYPE.POST_TYPE_PREF_KEY, tab.getPosition());
+
+                //Send callback
+                if(mCallBackListener != null) {
+                    mCallBackListener.OnPostTypeSelected(tab.getPosition());
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        int position = Utils.getIntegerPreference(getActivity(), IConstants.POST_TYPE.POST_TYPE_PREF_KEY);
+        if(position <0 || position > 2){
+            position = 0;
+        }
+
+        if(position != 0){
+            selectTabPosition(position);
+        }
+
+    }
+
+    public void selectTabPosition(int position){
+        mPostTypeTabs.getTabAt(position).select();
     }
 
     private void loadBannerAd(){

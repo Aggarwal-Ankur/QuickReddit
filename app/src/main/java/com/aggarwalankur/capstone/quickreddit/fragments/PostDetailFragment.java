@@ -2,13 +2,19 @@ package com.aggarwalankur.capstone.quickreddit.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.text.ICUCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -41,6 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class PostDetailFragment extends Fragment {
     private static final String TAG = PostDetailFragment.class.getSimpleName();
+    private static final String SUBEDDIT_PREFIX = "/r/";
 
     private static final String KEY_CURRENT_POST = "current_post";
     private RedditResponse.RedditContent mCurrentPost;
@@ -95,6 +102,15 @@ public class PostDetailFragment extends Fragment {
             return;
         }
 
+        Toolbar toolbar = (Toolbar)mRootView.findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
+
+
         mHolderLayout = (LinearLayout) mRootView.findViewById(R.id.holder_layout);
 
         TextView subredditTv = (TextView) mRootView.findViewById(R.id.subreddit);
@@ -112,7 +128,7 @@ public class PostDetailFragment extends Fragment {
         mCommentsTv = (TextView) mRootView.findViewById(R.id.comments);
 
 
-        subredditTv.setText(mCurrentPost.getSubreddit());
+        subredditTv.setText(SUBEDDIT_PREFIX + mCurrentPost.getSubreddit());
         domainTv.setText(mCurrentPost.getDomain());
         postTitleTv.setText(mCurrentPost.getTitle());
         authorTv.setText(mCurrentPost.getAuthor());
@@ -126,19 +142,56 @@ public class PostDetailFragment extends Fragment {
             playButton.setVisibility(View.GONE);
         }
 
+        if(mCurrentPost.getUrl() != null){
+            toolbar.inflateMenu(R.menu.reddit_detail);
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    if (item.getItemId() == R.id.action_share) {
+                        shareRedditPost();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
         if (previewUrl != null) {
             imgHolder.setVisibility(View.VISIBLE);
             Picasso.with(getActivity()).load(previewUrl)
                     .error(R.drawable.ic_placeholder_img)
                     .into(postImage);
+
+            if(mCurrentPost.getPostHint().equals("link") || mCurrentPost.getPostHint().contains("video")){
+                imgHolder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(mCurrentPost.getUrl()));
+                        startActivity(i);
+                    }
+                });
+            }
         } else {
             imgHolder.setVisibility(View.GONE);
         }
 
-        numCommentsTv.setText(Integer.toString(mCurrentPost.getNumComments()));
-        scoreTv.setText(Integer.toString(mCurrentPost.getScore()));
+        numCommentsTv.setText(Integer.toString(mCurrentPost.getNumComments()) + " " + getActivity().getResources().getString(R.string.comments_text));
+        scoreTv.setText(getActivity().getResources().getString(R.string.score_text) + " " +Integer.toString(mCurrentPost.getScore()));
 
         fetchComments();
+    }
+
+    private void shareRedditPost() {
+        Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
+        // Add data to the intent, the receiving app will decide
+        // what to do with it.
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mCurrentPost.getTitle());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mCurrentPost.getUrl());
+
+        startActivity(Intent.createChooser(shareIntent, getActivity().getResources().getString(R.string.share_reddit_post)));
     }
 
     private String getPreviewUrl(){
@@ -150,6 +203,10 @@ public class PostDetailFragment extends Fragment {
 
         try{
             previewUrl = mCurrentPost.getPreview().getRedditImageList().get(0).getSource().getUrl();
+            if(previewUrl.contains("&amp;")){
+                previewUrl = previewUrl.replaceAll("&amp;", "&");
+            }
+
         }catch (Exception e){
             e.printStackTrace();
             return null;
@@ -162,7 +219,8 @@ public class PostDetailFragment extends Fragment {
         boolean showPlayButton = false;
 
         String postHint = mCurrentPost.getPostHint();
-        if(postHint!= null && postHint.contains("video")){
+        String url = mCurrentPost.getUrl();
+        if((postHint!= null && postHint.contains("video")) || url.contains(".gif")){
             showPlayButton = true;
         }
 
@@ -247,10 +305,7 @@ public class PostDetailFragment extends Fragment {
             }
 
             if(commentList == null || commentList.isEmpty()){
-                Toast.makeText(mContext
-                        , getResources().getString(R.string.comments_error_toast)
-                        , Toast.LENGTH_LONG).show();
-
+                mCommentsTv.setText(getResources().getString(R.string.comments_error_toast));
                 return;
             }
 
@@ -258,7 +313,7 @@ public class PostDetailFragment extends Fragment {
             mCommentsTv.setVisibility(View.GONE);
 
             LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();
-            String indentation = "     ";
+            String indentation = "       ";
 
             for(RedditComment comment : commentList){
                 RelativeLayout commentLayout = (RelativeLayout)inflater.inflate(R.layout.comments_layout, null);

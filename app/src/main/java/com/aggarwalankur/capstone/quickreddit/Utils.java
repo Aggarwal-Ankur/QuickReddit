@@ -57,4 +57,16 @@ public class Utils {
         editor.putString(key, val);
         editor.commit();
     }
+
+    public static int getIntegerPreference(Context context, String key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return prefs.getInt(key, -1);
+    }
+
+    public static void saveIntegerPreference(Context context, String key, int val){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(key, val);
+        editor.commit();
+    }
 }

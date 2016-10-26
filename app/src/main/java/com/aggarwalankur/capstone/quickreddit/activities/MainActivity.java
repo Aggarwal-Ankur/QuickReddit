@@ -1,6 +1,7 @@
 package com.aggarwalankur.capstone.quickreddit.activities;
 
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.QuickRedditApplication;
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
 import com.aggarwalankur.capstone.quickreddit.adapters.SimpleTextAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
@@ -58,7 +60,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements LeftNavAdapter.LeftNavItemClickCallback,
         DataFetchFragment.FetchCallbacks,
-        RedditRestClient.SearchSubredditResponseListener{
+        RedditRestClient.SearchSubredditResponseListener,
+        MainViewFragment.OnPostTypeSelectedListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity
 
     /*Because this is a retained fragment and our AsyctTask is inside this, we do not need to implement onSaveInstanceState() in this activity*/
     private DataFetchFragment mDataFetchFragment;
-
     private MainViewFragment mMainViewFragment;
 
     private LeftNavAdapter mLeftNavAdapter;
@@ -82,7 +84,10 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mSearchSuggestionRv;
     private SimpleTextAdapter mSearchSuggestionAdapter;
     private AlertDialog mAddSubredditDialog;
+    private ProgressDialog mProgressDialog;
     private RedditRestClient mRestClient;
+
+    private String mContentUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,8 +120,15 @@ public class MainActivity extends AppCompatActivity
         leftNavListView.setAdapter(mLeftNavAdapter);
 
         mRestClient = new RedditRestClient(this);
+
         //All tasks related to the dialog
         setupAddSubredditDialog();
+
+        //Setup the progress dialog
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setMessage("Fetching data...");
 
 
         //Setup the Reddit data service
@@ -150,12 +162,12 @@ public class MainActivity extends AppCompatActivity
             //If internet is connected, first task is to start GA tracking
             ((QuickRedditApplication)getApplication()).startTracking();
 
+            //TODO : Fetch from shared pref
             long period = 3600L;
             long flex = 10L;
             String periodicTag = "periodic";
 
-            // create a periodic task to pull stocks once every hour after the app has been opened. This
-            // is so Widget data stays up to date.
+            // create a periodic task to pull data
             PeriodicTask periodicTask = new PeriodicTask.Builder()
                     .setService(RedditTaskService.class)
                     .setPeriod(period)
@@ -169,9 +181,7 @@ public class MainActivity extends AppCompatActivity
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
 
-
-        //Display initial data
-        //TODO : get from the Settings
+        //Initial data
         displayRedditItems();
 
     }
@@ -204,8 +214,9 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_refresh) {
+            mDataFetchFragment.fetchRedditPostsByUrl(mContentUrl);
+            mProgressDialog.show();
             return true;
         }
 
@@ -214,7 +225,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLeftNavItemClicked(String tag) {
-        Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
         mTag = tag;
         displayRedditItems();
 
@@ -223,10 +234,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void displayRedditItems(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int displayTypePreference = Integer.parseInt(prefs.getString(this.getString(R.string.pref_widget_display_key),
-                this.getString(R.string.pref_widget_display_hot)));
-
+        if(mDataFetchFragment == null){
+            return;
+        }
+        int displayTypePreference = Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY);
 
         String displayType = REDDIT_URL.SUBURL_HOT;
 
@@ -247,9 +258,11 @@ public class MainActivity extends AppCompatActivity
 
         if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
             String url = REDDIT_URL.BASE_URL + displayType + REDDIT_URL.SUBURL_JSON;
+            mContentUrl = url;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
+            mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
-
+            mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
             mAddSubredditDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
@@ -257,7 +270,9 @@ public class MainActivity extends AppCompatActivity
             startActivity(settingsIntent);
         }else{
             String url = REDDIT_URL.BASE_URL + mTag + displayType  + REDDIT_URL.SUBURL_JSON;
+            mContentUrl = url;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
+            mProgressDialog.show();
         }
     }
 
@@ -319,6 +334,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSubredditPostsFetchCompleted(String responseJson) {
+        mProgressDialog.dismiss();
         if(responseJson != null) {
             mRedditsJson = responseJson;
             Gson gson = new Gson();
@@ -332,6 +348,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void OnGetSubredditSearchResponse(List<String> names) {
+        mProgressDialog.dismiss();
         if(names != null){
             Log.d(TAG, "Name list size =" + names.size());
 
@@ -341,5 +358,10 @@ public class MainActivity extends AppCompatActivity
         }else{
             Toast.makeText(this, getResources().getString(R.string.error_fetching_subreddits), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void OnPostTypeSelected(int postType) {
+        displayRedditItems();
     }
 }
