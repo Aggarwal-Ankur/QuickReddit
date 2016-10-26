@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.aggarwalankur.capstone.quickreddit.R;
@@ -15,9 +16,14 @@ import java.util.List;
  */
 public class SimpleTextAdapter extends RecyclerView.Adapter<TextHolder> {
 
-    private List<String> mList;
+    public interface SubscribeSubredditClickListener{
+        void OnSubredditClicked(String clickedItem);
+    }
 
-    public SimpleTextAdapter(List<String> searchList){
+    private List<String> mList;
+    private SubscribeSubredditClickListener mCallbackListener;
+    public SimpleTextAdapter(SubscribeSubredditClickListener callbackListener, List<String> searchList){
+        this.mCallbackListener = callbackListener;
         this.mList = searchList;
     }
 
@@ -28,8 +34,21 @@ public class SimpleTextAdapter extends RecyclerView.Adapter<TextHolder> {
     }
 
     @Override
-    public void onBindViewHolder(TextHolder textHolder, int position) {
+    public void onBindViewHolder(TextHolder textHolder, final int position) {
         textHolder.text.setText(mList.get(position));
+
+        textHolder.textHolder.setTag(position);
+        textHolder.textHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(mCallbackListener !=  null){
+                    mCallbackListener.OnSubredditClicked(mList.get(position));
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -41,9 +60,11 @@ public class SimpleTextAdapter extends RecyclerView.Adapter<TextHolder> {
 
 class TextHolder extends RecyclerView.ViewHolder {
     TextView text;
+    View textHolder;
     public TextHolder(View itemView) {
         super(itemView);
         text = (TextView) itemView.findViewById(R.id.suggestion_text);
+        textHolder = itemView.findViewById(R.id.suggestion_text_holder);
     }
 
 }

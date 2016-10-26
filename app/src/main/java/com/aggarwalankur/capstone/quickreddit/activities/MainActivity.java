@@ -5,11 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,6 +27,7 @@ import com.aggarwalankur.capstone.quickreddit.IConstants.POST_TYPE;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,7 +60,8 @@ public class MainActivity extends AppCompatActivity
         implements LeftNavAdapter.LeftNavItemClickCallback,
         DataFetchFragment.FetchCallbacks,
         RedditRestClient.SearchSubredditResponseListener,
-        MainViewFragment.OnPostTypeSelectedListener{
+        MainViewFragment.OnPostTypeSelectedListener,
+        SimpleTextAdapter.SubscribeSubredditClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
@@ -80,10 +80,14 @@ public class MainActivity extends AppCompatActivity
 
     private String mRedditsJson;
     private String mTag = IConstants.LEFT_NAV_TAGS.MAIN_PAGE;
+
     private List<String> mSearchSuggestionList;
     private RecyclerView mSearchSuggestionRv;
     private SimpleTextAdapter mSearchSuggestionAdapter;
     private AlertDialog mAddSubredditDialog;
+    private Button mAddSubredditPositiveButton;
+    private String mSubscribeSelectionString;
+
     private ProgressDialog mProgressDialog;
     private RedditRestClient mRestClient;
 
@@ -265,6 +269,9 @@ public class MainActivity extends AppCompatActivity
             mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
             mAddSubredditDialog.show();
+
+            mAddSubredditPositiveButton = mAddSubredditDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            mAddSubredditPositiveButton.setEnabled(false);
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
@@ -284,7 +291,7 @@ public class MainActivity extends AppCompatActivity
 
         mSearchSuggestionRv = (RecyclerView) dialogView.findViewById(R.id.search_results_recyclerview);
         mSearchSuggestionList = new ArrayList<>();
-        mSearchSuggestionAdapter = new SimpleTextAdapter(mSearchSuggestionList);
+        mSearchSuggestionAdapter = new SimpleTextAdapter(this, mSearchSuggestionList);
 
         mSearchSuggestionRv.setLayoutManager(new LinearLayoutManager(this));
         mSearchSuggestionRv.setAdapter(mSearchSuggestionAdapter);
@@ -298,10 +305,10 @@ public class MainActivity extends AppCompatActivity
                     imm.hideSoftInputFromWindow(v.getWindowToken(),InputMethodManager.RESULT_UNCHANGED_SHOWN);
 
                     String query = v.getText().toString().trim();
-                    if (query.length()>2){
+                    if (!query.isEmpty()){
                         mRestClient.searchSubredditNames(query, MainActivity.this);
                     }else{
-                        Toast.makeText(MainActivity.this, R.string.too_many_results, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.empty_query, Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
@@ -309,17 +316,21 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        dialogBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton(R.string.subscribe, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //do something with edt.getText().toString();
+                if(mSubscribeSelectionString != null && !mSubscribeSelectionString.isEmpty()){
+
+                }
             }
         });
-        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //pass
+                mSubscribeSelectionString = "";
             }
         });
         mAddSubredditDialog = dialogBuilder.create();
+
+
     }
 
 
@@ -363,5 +374,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void OnPostTypeSelected(int postType) {
         displayRedditItems();
+    }
+
+    @Override
+    public void OnSubredditClicked(String clickedItem) {
+        mSubscribeSelectionString = clickedItem;
+        mAddSubredditPositiveButton.setText(getString(R.string.subscribe)+ " " +clickedItem);
+        mAddSubredditPositiveButton.setEnabled(true);
     }
 }

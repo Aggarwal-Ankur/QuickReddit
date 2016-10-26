@@ -66,6 +66,10 @@
         <item name="android:textSize">@dimen/search_box_textsize</item>
     </style>
 
+    <style name="SelectedText" parent="SearchText">
+        <item name="android:textSize">@dimen/selcted_item_textsize</item>
+    </style>
+
     <style name="SearchSuggestionItem">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textColor">@color/grey700</item>
