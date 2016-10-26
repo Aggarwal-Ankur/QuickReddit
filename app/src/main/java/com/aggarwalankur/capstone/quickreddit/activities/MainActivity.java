@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity
         SimpleTextAdapter.SubscribeSubredditClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String SUBEDDIT_PREFIX = "/r/";
+
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
     private static final String TAG_ASYNC_FRAGMENT = "async_fragment";
 
@@ -138,8 +140,8 @@ public class MainActivity extends AppCompatActivity
         //Setup the Reddit data service
         mServiceIntent = new Intent(this, DataFetchService.class);
         if (savedInstanceState == null) {
-            // Run the initialize task service so that some stocks appear upon an empty database
-            mServiceIntent.putExtra("tag", "init");
+            // Run the initialize task service so that some data is fetched
+            mServiceIntent.putExtra(IConstants.IDENTIFFIERS.ACTION, IConstants.ACTIONS.INIT);
             if (isConnected) {
                 startService(mServiceIntent);
             } else {
@@ -169,7 +171,7 @@ public class MainActivity extends AppCompatActivity
             //TODO : Fetch from shared pref
             long period = 3600L;
             long flex = 10L;
-            String periodicTag = "periodic";
+            String periodicTag = IConstants.ACTIONS.PERIODIC_SYNC;
 
             // create a periodic task to pull data
             PeriodicTask periodicTask = new PeriodicTask.Builder()
@@ -180,8 +182,7 @@ public class MainActivity extends AppCompatActivity
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                     .setRequiresCharging(false)
                     .build();
-            // Schedule task with tag "periodic." This ensure that only the stocks present in the DB
-            // are updated.
+            // Schedule task with tag "periodicsync"
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
         }
 
@@ -319,7 +320,11 @@ public class MainActivity extends AppCompatActivity
         dialogBuilder.setPositiveButton(R.string.subscribe, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 if(mSubscribeSelectionString != null && !mSubscribeSelectionString.isEmpty()){
+                    SubredditDTO subscribedSubreddit = new SubredditDTO(mSubscribeSelectionString, SUBEDDIT_PREFIX + mSubscribeSelectionString);
+                    mServiceIntent.putExtra(IConstants.IDENTIFFIERS.ACTION, IConstants.ACTIONS.ADD_SUBREDDIT);
+                    mServiceIntent.putExtra(IConstants.IDENTIFFIERS.SUBREDDIT, subscribedSubreddit);
 
+                    startService(mServiceIntent);
                 }
             }
         });

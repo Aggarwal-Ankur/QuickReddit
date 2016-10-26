@@ -11,6 +11,7 @@ public interface IConstants {
     }
 
     interface ACTIONS {
+        String INIT = "init";
         String ADD_SUBREDDIT = "add";
         String PERIODIC_SYNC = "sync";
         String WIDGET = "widget";

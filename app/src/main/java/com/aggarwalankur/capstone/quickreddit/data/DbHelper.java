@@ -24,7 +24,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String CREATE_REDDITPOST_TABLE = "CREATE TABLE " + RedditPostContract.RedditPost.TABLE_NAME + " (" +
                 RedditPostContract.RedditPost._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                RedditPostContract.RedditPost.COLUMN_ID + " INTEGER UNIQUE NOT NULL, " +
+                RedditPostContract.RedditPost.COLUMN_ID + " INTEGER NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_TITLE + " TEXT NOT NULL, " +
                 RedditPostContract.RedditPost.COLUMN_DOMAIN + " TEXT, " +
                 RedditPostContract.RedditPost.COLUMN_AUTHOR + " TEXT, " +

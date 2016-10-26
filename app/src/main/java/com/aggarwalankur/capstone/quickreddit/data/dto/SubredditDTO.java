@@ -9,6 +9,15 @@ public class SubredditDTO implements Serializable{
     private String name;
     private String path;
 
+    public SubredditDTO(){
+        //Do nothing
+    }
+
+    public SubredditDTO(String name, String path){
+        this.name = name;
+        this.path = path;
+    }
+
     public String getName() {
         return name;
     }

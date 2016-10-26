@@ -73,8 +73,13 @@ public class RedditTaskService extends GcmTaskService {
 
             List<SubredditDTO> list = new ArrayList<>();
             list.add(subreddit);
+            long subscribeResult = SubredditDbHelper.getInstance(mContext).addSubreddit(subreddit);
 
-            fetchAndSaveSubredditData(list);
+            if(subscribeResult != -1){
+                fetchAndSaveSubredditData(list);
+            }else{
+                return -1;
+            }
         }
 
         return 0;
@@ -113,9 +118,13 @@ public class RedditTaskService extends GcmTaskService {
                 try {
                     Response responseHot = client.newCall(requestHot).execute();
                     if (responseHot.code() == 200) {
-                        RedditResponse json = parser.fromJson(responseHot.body().toString(), RedditResponse.class);
+                        String responseJson = responseHot.body().string();
 
-                        mPostList.add(json.getRedditData().getRedditPostList().get(0));
+                        RedditResponse json = parser.fromJson(responseJson, RedditResponse.class);
+
+                        //The last one is the post to get
+                        int position = json.getRedditData().getRedditPostList().size() - 1;
+                        mPostList.add(json.getRedditData().getRedditPostList().get(position));
                     } else {
                         Log.d(TAG, "Subreddits Data Fetch Error. Code = " + responseHot.code());
                     }
@@ -128,6 +137,7 @@ public class RedditTaskService extends GcmTaskService {
             SubredditDbHelper.getInstance(mContext).addSubredditData(mPostList, IConstants.POST_TYPE.HOT);
 
             //3. Fetch all "New" posts
+            mPostList.clear();
             for (SubredditDTO currentSubreddit : subredditList) {
                 String urlNew = IConstants.REDDIT_URL.BASE_URL + currentSubreddit.getPath()
                         + IConstants.REDDIT_URL.SUBURL_NEW + IConstants.REDDIT_URL.SUBURL_JSON
@@ -139,9 +149,13 @@ public class RedditTaskService extends GcmTaskService {
                 try {
                     Response responseNew = client.newCall(requestNew).execute();
                     if (responseNew.code() == 200) {
-                        RedditResponse json = parser.fromJson(responseNew.body().toString(), RedditResponse.class);
+                        String responseJson = responseNew.body().string();
 
-                        mPostList.add(json.getRedditData().getRedditPostList().get(0));
+                        RedditResponse json = parser.fromJson(responseJson, RedditResponse.class);
+
+                        //The last one is the post to get
+                        int position = json.getRedditData().getRedditPostList().size() - 1;
+                        mPostList.add(json.getRedditData().getRedditPostList().get(position));
                     } else {
                         Log.d(TAG, "Subreddits Data Fetch Error. Code = " + responseNew.code());
                     }
@@ -155,6 +169,7 @@ public class RedditTaskService extends GcmTaskService {
 
 
             //5. Fetch all "Top" posts
+            mPostList.clear();
             for (SubredditDTO currentSubreddit : subredditList) {
                 String urlTop = IConstants.REDDIT_URL.BASE_URL + currentSubreddit.getPath()
                         + IConstants.REDDIT_URL.SUBURL_TOP + IConstants.REDDIT_URL.SUBURL_JSON
@@ -166,10 +181,13 @@ public class RedditTaskService extends GcmTaskService {
                 try {
                     Response responseTop = client.newCall(requestTop).execute();
                     if (responseTop.code() == 200) {
-                        RedditResponse json = parser.fromJson(responseTop.body().toString(), RedditResponse.class);
+                        String responseJson = responseTop.body().string();
 
-                        mPostList.add(json.getRedditData().getRedditPostList().get(0));
+                        RedditResponse json = parser.fromJson(responseJson, RedditResponse.class);
 
+                        //The last one is the post to get
+                        int position = json.getRedditData().getRedditPostList().size() - 1;
+                        mPostList.add(json.getRedditData().getRedditPostList().get(position));
                     } else {
                         Log.d(TAG, "Subreddits Data Fetch Error. Code = " + responseTop.code());
                     }
@@ -197,9 +215,9 @@ public class RedditTaskService extends GcmTaskService {
 
         HashMap<String, WidgetDataDto> widgetDataMap = new HashMap<>();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String suburlPreference = "" + prefs.getInt(this.getString(R.string.pref_widget_display_key),
-                Integer.parseInt(this.getString(R.string.pref_widget_display_hot)));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String suburlPreference = "" + prefs.getInt(mContext.getString(R.string.pref_widget_display_key),
+                Integer.parseInt(mContext.getString(R.string.pref_widget_display_hot)));
 
         //Get the data from the DB and update the widgets
         try {
