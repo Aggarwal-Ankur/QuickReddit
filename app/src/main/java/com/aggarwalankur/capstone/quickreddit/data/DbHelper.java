@@ -47,22 +47,29 @@ public class DbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_REDDITPOST_TABLE);
         sqLiteDatabase.execSQL(CREATE_SUBREDDIT_TABLE);
 
-        //TODO : Testing only
-        //testSubredditTable(sqLiteDatabase);
+        initialSubredditSubscribe(sqLiteDatabase);
     }
 
-    public static void testSubredditTable(SQLiteDatabase sqLiteDatabase){
+    public static void initialSubredditSubscribe(SQLiteDatabase sqLiteDatabase){
+        ContentValues testValues4 = new ContentValues();
+        testValues4.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Aww");
+        testValues4.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/aww");
         ContentValues testValues = new ContentValues();
-        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Gifs");
-        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/gifs");
+        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Cricket");
+        testValues.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/cricket");
+        ContentValues testValues1 = new ContentValues();
+        testValues1.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Gifs");
+        testValues1.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/gifs");
         ContentValues testValues2 = new ContentValues();
-        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Tasker");
-        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/tasker");
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Jokes");
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/jokes");
         ContentValues testValues3 = new ContentValues();
-        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Jokes");
-        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/jokes");
+        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Movies");
+        testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/movies");
         try {
+            sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues4);
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues);
+            sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues1);
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues2);
             sqLiteDatabase.insert(RedditPostContract.SubscribedSubreddits.TABLE_NAME, null, testValues3);
             Log.d(TAG, "Db Insert Success");

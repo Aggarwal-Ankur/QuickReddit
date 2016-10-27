@@ -55,6 +55,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     private RedditPostsListAdapter mAdapter;
     private String mTag;
     private String mRedditsJson;
+    private int mSelectedPostsType = IConstants.POST_TYPE.HOT;
 
     @Override
     public void onAttach(Context context) {
@@ -154,6 +155,17 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
+    public void updateRedditContents(String tag, int postType, List<RedditResponse.RedditPost> redditPostsList){
+        if(redditPostsList != null){
+            mTag = tag;
+            mSelectedPostsType = postType;
+
+            mRedditPostsList.clear();
+            mRedditPostsList.addAll(redditPostsList);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
         switch (loaderID) {
@@ -191,6 +203,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.JSON_STRING, mRedditsJson);
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.TYPE, mTag);
         detailsIntent.putExtra(IConstants.INTENT_EXTRAS.START_ID, clickedPosition);
+        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.POSTS_TYPE, mSelectedPostsType);
         startActivity(detailsIntent);
 
     }

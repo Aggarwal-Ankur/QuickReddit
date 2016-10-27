@@ -26,12 +26,16 @@ public class RedditResponse {
         }
     }
 
-    public class RedditPost implements Serializable{
+    public static class RedditPost implements Serializable{
         @SerializedName("data")
         private RedditContent redditContent;
 
         public RedditContent getRedditContent() {
             return redditContent;
+        }
+
+        public void setRedditContent(RedditContent redditContent) {
+            this.redditContent = redditContent;
         }
     }
 
@@ -61,7 +65,7 @@ public class RedditResponse {
         }
     }
 
-    public class RedditContent implements Serializable{
+    public static class RedditContent implements Serializable{
         private String domain;
         private String subreddit;
         private String author;
@@ -79,6 +83,30 @@ public class RedditResponse {
         private long created_utc;
         private int num_comments;
         private int score;
+        private String previewImgUrl;
+
+        public RedditContent(){
+
+        }
+
+        public RedditContent(String domain, String subreddit, String author, String identifier,
+                             String thumbnail, String post_hint, String permalink,
+                             String url, String title, long created_utc, int num_comments, int score,
+                             String previewImgUrl){
+            this.domain = domain;
+            this.subreddit = subreddit;
+            this.author = author;
+            this.identifier = identifier;
+            this.thumbnail = thumbnail;
+            this.post_hint = post_hint;
+            this.permalink = permalink;
+            this.url = url;
+            this.title = title;
+            this.created_utc = created_utc;
+            this.num_comments = num_comments;
+            this.score = score;
+            this.previewImgUrl = previewImgUrl;
+        }
 
         public String getDomain() {
             return domain;
@@ -134,6 +162,10 @@ public class RedditResponse {
 
         public String getPermalink() {
             return permalink;
+        }
+
+        public String getPreviewImgUrl() {
+            return previewImgUrl;
         }
     }
 }

@@ -56,8 +56,10 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
                 + SEPARATOR_TEXT
                 + mContext.getResources().getString(R.string.score_text) + " " + redditContent.getScore();
 
-        if (redditContent.getThumbnail() != null && !redditContent.getThumbnail().isEmpty()) {
-            Picasso.with(mContext).load(redditContent.getThumbnail())
+        String imgUrl = getImageUrl(redditContent);
+
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            Picasso.with(mContext).load(imgUrl)
                     .error(R.drawable.ic_placeholder_img)
                     .into(holder.previewImg);
         } else {
@@ -75,6 +77,34 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
                 mRedditPostItemClickCallback.onRedditPostItemClicked((int) view.getTag());
             }
         });
+    }
+
+    private String getImageUrl(RedditResponse.RedditContent redditContent){
+        String previewImgUrlFromDb = redditContent.getPreviewImgUrl();
+        if(previewImgUrlFromDb != null && !previewImgUrlFromDb.isEmpty()){
+            if(previewImgUrlFromDb.contains("&amp;")){
+                previewImgUrlFromDb = previewImgUrlFromDb.replaceAll("&amp;", "&");
+            }
+
+            return previewImgUrlFromDb;
+        }
+
+        String thumbnail = redditContent.getThumbnail();
+
+        if(thumbnail != null && !thumbnail.isEmpty()){
+            thumbnail = thumbnail.replaceAll("&amp;", "&");
+            return thumbnail;
+        }
+
+        String previewImgUrl = redditContent.getPreviewImgUrl();
+
+        if(previewImgUrl != null && !previewImgUrl.isEmpty()){
+            previewImgUrl = previewImgUrl.replaceAll("&amp;", "&");
+            return previewImgUrl;
+        }
+
+        return null;
+
     }
 
     @Override

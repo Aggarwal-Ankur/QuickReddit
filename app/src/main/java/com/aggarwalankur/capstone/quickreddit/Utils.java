@@ -63,10 +63,27 @@ public class Utils {
         return prefs.getInt(key, -1);
     }
 
+    public static int getIntegerPreference(Context context, String key, int defVal){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return prefs.getInt(key, defVal);
+    }
+
     public static void saveIntegerPreference(Context context, String key, int val){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(key, val);
+        editor.commit();
+    }
+
+    public static long getLongPreference(Context context, String key, long defVal){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return prefs.getLong(key, defVal);
+    }
+
+    public static void saveLongPreference(Context context, String key, long val){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(key, val);
         editor.commit();
     }
 }

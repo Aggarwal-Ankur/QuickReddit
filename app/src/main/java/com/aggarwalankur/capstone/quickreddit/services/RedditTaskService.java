@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.activities.MainActivity;
+import com.aggarwalankur.capstone.quickreddit.data.DbHelper;
 import com.aggarwalankur.capstone.quickreddit.data.RedditPostContract;
 import com.aggarwalankur.capstone.quickreddit.data.SubredditDbHelper;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
@@ -47,8 +49,11 @@ public class RedditTaskService extends GcmTaskService {
     private Context mContext;
     private StringBuilder mSubscribedSubreddits = new StringBuilder();
 
+    private static final String LAST_SYNC_TIME_KEY = "last_sync_time";
     private static final String SUBEDDIT_PREFIX = "/r/";
     private static final String SEPARATOR_TEXT = "  \u25AA  ";
+
+    private DbHelper mDbHelper;
 
     public RedditTaskService() {
         //Required for Manifest
@@ -56,6 +61,7 @@ public class RedditTaskService extends GcmTaskService {
 
     public RedditTaskService(Context context) {
         mContext = context;
+        mDbHelper = new DbHelper(mContext);
     }
 
     @Override
@@ -65,10 +71,13 @@ public class RedditTaskService extends GcmTaskService {
         }
 
         if (taskParams.getTag().equals(IConstants.ACTIONS.PERIODIC_SYNC)) {
+            Log.d(TAG, "onRunTask : PERIODIC_SYNC");
             updateAllSubredditData();
 
             updateWidgets();
         } else if (taskParams.getTag().equals(IConstants.ACTIONS.ADD_SUBREDDIT)) {
+            Log.d(TAG, "onRunTask : ADD_SUBREDDIT");
+
             SubredditDTO subreddit = (SubredditDTO) taskParams.getExtras().getSerializable(IConstants.IDENTIFFIERS.SUBREDDIT);
 
             List<SubredditDTO> list = new ArrayList<>();
@@ -80,16 +89,46 @@ public class RedditTaskService extends GcmTaskService {
             }else{
                 return -1;
             }
+        }else if(taskParams.getTag().equals(IConstants.ACTIONS.WIDGET)){
+            Log.d(TAG, "onRunTask : WIDGET");
+            //TODO : remove this after testing
+            updateAllSubredditData();
+
+            updateWidgets();
+        }else if(taskParams.getTag().equals(IConstants.ACTIONS.INIT)){
+            Log.d(TAG, "onRunTask : INIT");
+            updateAllSubredditData();
+
+            updateWidgets();
         }
 
         return 0;
     }
 
     private void updateAllSubredditData() {
-        //1. Get the subreddit list from DbHelper
+        //1. Check the last time of sync
+        long lastTimeOfSync = Utils.getLongPreference(mContext, LAST_SYNC_TIME_KEY, 0);
+        int syncFrequency = Utils.getIntegerPreference(mContext, mContext.getString(R.string.pref_widget_display_key), 60);
+
+        //Calculate syncFrequency in seconds
+        syncFrequency = syncFrequency * 60;
+
+        if(((System.currentTimeMillis() - lastTimeOfSync)/ 1000) < syncFrequency){
+            //Do nothing
+            Log.d(TAG, "updateAllSubredditData : not syncing because of time difference");
+            return;
+        }
+
+        //2. Delete all data from DB
+        SubredditDbHelper.getInstance(mContext).deleteAllSubredditData();
+
+        //3. Get the subreddit list from DbHelper
         List<SubredditDTO> subredditList = SubredditDbHelper.getInstance(mContext).getSubredditList();
 
         fetchAndSaveSubredditData(subredditList);
+
+        //4. Update sync time
+        Utils.saveLongPreference(mContext, LAST_SYNC_TIME_KEY, System.currentTimeMillis());
     }
 
     private void fetchAndSaveSubredditData(List<SubredditDTO> subredditList) {
@@ -219,16 +258,17 @@ public class RedditTaskService extends GcmTaskService {
         String suburlPreference = "" + prefs.getInt(mContext.getString(R.string.pref_widget_display_key),
                 Integer.parseInt(mContext.getString(R.string.pref_widget_display_hot)));
 
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
         //Get the data from the DB and update the widgets
         try {
-            String selectionClause = RedditPostContract.RedditPost.COLUMN_POST_TYPE + " = ?";
+            String selectionClause = RedditPostContract.RedditPost.COLUMN_POST_TYPE + " ="+suburlPreference;
 
-            Cursor initQueryCursor = mContext.getContentResolver().query(
-                    RedditPostContract.RedditPost.CONTENT_URI,
-                    new String[]{"Distinct " + RedditPostContract.RedditPost.ALL_COLUMNS},
+            Cursor initQueryCursor = db.query(true,
+                    RedditPostContract.RedditPost.TABLE_NAME,
+                    RedditPostContract.RedditPost.ALL_COLUMNS,
                     selectionClause,
-                    new String[]{suburlPreference},
-                    null);
+                    null, null, null, null, null);
 
             if (initQueryCursor != null) {
                 initQueryCursor.moveToFirst();
@@ -310,6 +350,8 @@ public class RedditTaskService extends GcmTaskService {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            db.close();
         }
     }
 

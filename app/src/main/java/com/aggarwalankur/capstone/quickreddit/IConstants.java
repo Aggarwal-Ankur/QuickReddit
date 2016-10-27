@@ -20,6 +20,7 @@ public interface IConstants {
     interface INTENT_EXTRAS{
         String TYPE = "type";
         String JSON_STRING = "json_string";
+        String POSTS_TYPE = "posts_type";
         String START_ID = "start_id";
     }
 

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
+import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
 import com.aggarwalankur.capstone.quickreddit.fragments.DataFetchFragment;
 import com.aggarwalankur.capstone.quickreddit.services.DataFetchService;
 import com.aggarwalankur.capstone.quickreddit.widget.RedditWidgetProvider;
@@ -97,6 +98,11 @@ public class WidgetConfigActivity extends AppCompatActivity
     }
 
     @Override
+    public void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList) {
+        //This is never called in Widget config
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Toast.makeText(mContext, getResources().getString(R.string.subreddit_choice) + mSymbolList[i], Toast.LENGTH_LONG).show();
         saveSymbolPref(mContext, mAppWidgetId, mSymbolList[i].toString());
@@ -121,7 +127,7 @@ public class WidgetConfigActivity extends AppCompatActivity
         this.finish();
 
         Intent serviceIntent = new Intent(mContext, DataFetchService.class);
-        serviceIntent.putExtra(IConstants.IDENTIFFIERS.ACTION, IConstants.ACTIONS.PERIODIC_SYNC);
+        serviceIntent.putExtra(IConstants.IDENTIFFIERS.ACTION, IConstants.ACTIONS.WIDGET);
         startService(serviceIntent);
     }
 }

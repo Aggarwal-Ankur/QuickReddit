@@ -27,6 +27,8 @@ public class DataFetchFragment extends Fragment {
         void onSubredditListFetchCompleted(List<SubredditDTO> subredditList);
 
         void onSubredditPostsFetchCompleted(String responseJson);
+
+        void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList);
     }
 
     private static final String TAG = DataFetchFragment.class.getSimpleName();
@@ -38,6 +40,7 @@ public class DataFetchFragment extends Fragment {
 
     private SubredditListFetchTask mSubredditListFetchTask;
     private RedditPostsFetchTask mRedditPostsFetchTask;
+    private SubredditFeedFetchFromDbTask mSubredditFeedFetchFromDbTask;
 
 
     @Override
@@ -68,6 +71,13 @@ public class DataFetchFragment extends Fragment {
         mRedditPostsFetchTask.execute(new String[]{url});
     }
 
+    public void fetchRedditPostsFromDb(int postType) {
+        if (mSubredditFeedFetchFromDbTask != null) {
+            mSubredditFeedFetchFromDbTask.cancel(true);
+        }
+        mSubredditFeedFetchFromDbTask = new SubredditFeedFetchFromDbTask();
+        mSubredditFeedFetchFromDbTask.execute(new Integer[]{postType});
+    }
 
     private class SubredditListFetchTask extends AsyncTask<Void, Void, List<SubredditDTO>> {
 
@@ -92,6 +102,33 @@ public class DataFetchFragment extends Fragment {
 
             if (mCallbackListener != null) {
                 mCallbackListener.onSubredditListFetchCompleted(subredditsList);
+            }
+        }
+    }
+
+    private class SubredditFeedFetchFromDbTask extends AsyncTask<Integer, Void, List<RedditResponse.RedditPost>> {
+
+        @Override
+        protected List<RedditResponse.RedditPost> doInBackground(Integer... params) {
+            try {
+                //Get the data from DbHelper
+                return SubredditDbHelper.getInstance(getActivity()).fetchSubredditDataByPostType(params[0]);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<RedditResponse.RedditPost> postsList) {
+            super.onPostExecute(postsList);
+
+            if (isCancelled()) {
+                return;
+            }
+
+            if (mCallbackListener != null) {
+                mCallbackListener.onSubredditPostsFetchFromDbCompleted(postsList);
             }
         }
     }

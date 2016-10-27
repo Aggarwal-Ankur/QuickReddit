@@ -162,7 +162,7 @@ public class PostDetailFragment extends Fragment {
                     .error(R.drawable.ic_placeholder_img)
                     .into(postImage);
 
-            if(mCurrentPost.getPostHint().equals("link") || mCurrentPost.getPostHint().contains("video")){
+            if(mCurrentPost.getPostHint()!= null && (mCurrentPost.getPostHint().equals("link") || mCurrentPost.getPostHint().contains("video"))){
                 imgHolder.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -195,13 +195,19 @@ public class PostDetailFragment extends Fragment {
     }
 
     private String getPreviewUrl(){
-        if(mCurrentPost.getPreview() == null){
-            return null;
+        String previewImgUrlFromDb = mCurrentPost.getPreviewImgUrl();
+        if(previewImgUrlFromDb != null && !previewImgUrlFromDb.isEmpty()){
+            if(previewImgUrlFromDb.contains("&amp;")){
+                previewImgUrlFromDb = previewImgUrlFromDb.replaceAll("&amp;", "&");
+            }
+
+            return previewImgUrlFromDb;
         }
 
         String previewUrl;
 
         try{
+            //Sometimes preview is null. But this is handled aptly
             previewUrl = mCurrentPost.getPreview().getRedditImageList().get(0).getSource().getUrl();
             if(previewUrl.contains("&amp;")){
                 previewUrl = previewUrl.replaceAll("&amp;", "&");

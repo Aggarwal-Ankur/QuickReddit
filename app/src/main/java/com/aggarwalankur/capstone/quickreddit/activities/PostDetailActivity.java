@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants;
 import com.aggarwalankur.capstone.quickreddit.R;
+import com.aggarwalankur.capstone.quickreddit.Utils;
+import com.aggarwalankur.capstone.quickreddit.data.SubredditDbHelper;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
 import com.aggarwalankur.capstone.quickreddit.fragments.PostDetailFragment;
 import com.google.gson.Gson;
@@ -41,7 +43,12 @@ public class PostDetailActivity extends AppCompatActivity {
                 mType = getIntent().getExtras().getString(IConstants.INTENT_EXTRAS.TYPE);
 
                 if(mType.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
-                    //Read from cursor
+                    //Read from db
+
+                    int postType = getIntent().getExtras().getInt(IConstants.INTENT_EXTRAS.POSTS_TYPE);
+                    mPostsList = SubredditDbHelper.getInstance(this).fetchSubredditDataByPostType(postType);
+
+                    mStartId = getIntent().getExtras().getInt(IConstants.INTENT_EXTRAS.START_ID);
                 }else{
                     //Read the json
                     feedJson = getIntent().getExtras().getString(IConstants.INTENT_EXTRAS.JSON_STRING);

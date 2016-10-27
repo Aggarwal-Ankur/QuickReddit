@@ -220,8 +220,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            mDataFetchFragment.fetchRedditPostsByUrl(mContentUrl);
-            mProgressDialog.show();
+            if(mContentUrl != null && !mContentUrl.isEmpty()) {
+                mDataFetchFragment.fetchRedditPostsByUrl(mContentUrl);
+                mProgressDialog.show();
+            }
             return true;
         }
 
@@ -242,7 +244,7 @@ public class MainActivity extends AppCompatActivity
         if(mDataFetchFragment == null){
             return;
         }
-        int displayTypePreference = Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY);
+        int displayTypePreference = Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT);
 
         String displayType = REDDIT_URL.SUBURL_HOT;
 
@@ -267,6 +269,9 @@ public class MainActivity extends AppCompatActivity
             mDataFetchFragment.fetchRedditPostsByUrl(url);
             mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
+            mContentUrl = "";
+
+            mDataFetchFragment.fetchRedditPostsFromDb(displayTypePreference);
             mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
             mAddSubredditDialog.show();
@@ -360,6 +365,12 @@ public class MainActivity extends AppCompatActivity
 
             mMainViewFragment.updateRedditContents(mTag, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
         }
+    }
+
+    @Override
+    public void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList) {
+        mProgressDialog.dismiss();
+        mMainViewFragment.updateRedditContents(mTag, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY), postsList);
     }
 
     @Override
