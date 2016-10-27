@@ -61,8 +61,8 @@ public class DbHelper extends SQLiteOpenHelper {
         testValues1.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Gifs");
         testValues1.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/gifs");
         ContentValues testValues2 = new ContentValues();
-        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Jokes");
-        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/jokes");
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Sports");
+        testValues2.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/sports");
         ContentValues testValues3 = new ContentValues();
         testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_NAME, "Movies");
         testValues3.put(RedditPostContract.SubscribedSubreddits.COLUMN_PATH, "/r/movies");

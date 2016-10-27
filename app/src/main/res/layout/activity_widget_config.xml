@@ -5,7 +5,8 @@
     android:id="@+id/activity_widget_config"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.WidgetConfigActivity">
+    tools:context=".activities.WidgetConfigActivity"
+    android:contentDescription="@string/description_config_root">
 
     <ListView
         android:id="@android:id/list"

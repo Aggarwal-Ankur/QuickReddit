@@ -20,7 +20,8 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:navigationIcon="?homeAsUpIndicator"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            android:contentDescription="@string/description_detail_toolbar">
 
         </android.support.v7.widget.Toolbar>
 
@@ -56,7 +57,8 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:singleLine="true"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_subreddit"/>
 
                 <TextView
                     android:id="@+id/domain"
@@ -67,7 +69,8 @@
                     android:layout_alignParentTop="true"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_domain"/>
 
             </RelativeLayout>
 
@@ -76,7 +79,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/subreddit"
-                style="@style/PrimaryText" />
+                style="@style/PrimaryText"
+                android:contentDescription="@string/description_detail_title"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -90,7 +94,8 @@
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
                     android:singleLine="true"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_author"/>
 
                 <TextView
                     android:id="@+id/post_time"
@@ -101,7 +106,8 @@
                     android:layout_alignParentTop="true"
                     android:ellipsize="end"
                     android:singleLine="true"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_time"/>
 
             </RelativeLayout>
 
@@ -117,7 +123,8 @@
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_placeholder_img" />
+                    android:src="@drawable/ic_placeholder_img"
+                    android:contentDescription="@string/description_detail_image"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -128,7 +135,8 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_play_circle_outline" />
+                        android:src="@drawable/ic_play_circle_outline"
+                        android:contentDescription="@string/description_detail_play_button"/>
                 </LinearLayout>
 
 
@@ -149,7 +157,8 @@
                     android:layout_alignParentTop="true"
                     android:singleLine="true"
                     android:text="@string/comments_text"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_num_comments"/>
 
                 <TextView
                     android:id="@+id/score"
@@ -160,7 +169,8 @@
                     android:layout_alignParentTop="true"
                     android:singleLine="true"
                     android:text="@string/comments_text"
-                    style="@style/SecondaryText" />
+                    style="@style/SecondaryText"
+                    android:contentDescription="@string/description_detail_score"/>
             </RelativeLayout>
 
             <TextView
@@ -170,7 +180,8 @@
                 android:fontFamily="sans-serif"
                 android:text="@string/loading_comments"
                 android:textColor="@color/colorPrimaryDark"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:contentDescription="@string/description_detail_comments"/>
         </LinearLayout>
 
     </ScrollView>

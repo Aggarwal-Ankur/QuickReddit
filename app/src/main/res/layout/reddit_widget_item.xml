@@ -6,7 +6,8 @@
     android:background="@color/white"
     android:gravity="center_vertical"
     android:orientation="horizontal">
-    <!--Preview Image-->
+
+
     <ImageView
         android:id="@+id/preview_img"
         android:layout_width="@dimen/preview_img_width"
@@ -24,34 +25,28 @@
 
         <TextView
             android:id="@+id/reddit_top_bar"
-            style="@style/SecondaryText"
+            style="@style/SecondaryTextComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/description_topbar"/>
 
         <TextView
             android:id="@+id/reddit_title"
-            style="@style/PrimaryText"
+            style="@style/PrimaryTextComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start|left"
             android:ellipsize="end"
             android:fontFamily="sans-serif"
-            android:maxLines="3"
+            android:maxLines="2"
             android:contentDescription="@string/description_title_item"/>
 
         <TextView
             android:id="@+id/reddit_bottom_bar"
-            style="@style/SecondaryText"
+            style="@style/SecondaryTextComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/description_bottombar"/>
-
-        <View
-            android:id="@+id/bottom_divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey400" />
     </LinearLayout>
 
 </LinearLayout>

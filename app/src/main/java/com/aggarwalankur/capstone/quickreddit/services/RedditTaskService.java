@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -301,7 +303,7 @@ public class RedditTaskService extends GcmTaskService {
                     WidgetDataDto currentData = new WidgetDataDto(title, subreddit, createdUtc,
                             domain, numComments, score, previewImg);
 
-                    widgetDataMap.put(subreddit, currentData);
+                    widgetDataMap.put(subreddit.toLowerCase(), currentData);
                     initQueryCursor.moveToNext();
                 }
 
@@ -309,7 +311,7 @@ public class RedditTaskService extends GcmTaskService {
             }
 
             if (!widgetDataMap.isEmpty()) {
-                for (int currentAppWidgetId : appWidgetIds) {
+                for (final int currentAppWidgetId : appWidgetIds) {
                     String key = RedditWidgetProvider.SYMBOL_KEY_PREFIX
                             + RedditWidgetProvider.SYMBOL_KEY_SEPARATOR + Integer.toString(currentAppWidgetId);
 
@@ -319,8 +321,10 @@ public class RedditTaskService extends GcmTaskService {
                         continue;
                     }
 
+                    widgetSymbol = widgetSymbol.toLowerCase();
+
                     if (widgetDataMap.containsKey(widgetSymbol)) {
-                        WidgetDataDto currentData = widgetDataMap.get(widgetSymbol);
+                        final WidgetDataDto currentData = widgetDataMap.get(widgetSymbol);
 
                         String topBarText = SUBEDDIT_PREFIX + currentData.getSubreddit()
                                 + SEPARATOR_TEXT + Utils.getTimeString(currentData.getCreatedUtc())
@@ -331,16 +335,31 @@ public class RedditTaskService extends GcmTaskService {
                                 + mContext.getResources().getString(R.string.score_text) + " " + currentData.getScore();
 
                         //Update in the widget
-                        int layoutId = R.layout.reddit_post_list_item;
-                        RemoteViews views = new RemoteViews(mContext.getPackageName(), layoutId);
+                        int layoutId = R.layout.reddit_widget_item;
+                        final RemoteViews views = new RemoteViews(mContext.getPackageName(), layoutId);
 
                         views.setTextViewText(R.id.reddit_top_bar, topBarText);
                         views.setTextViewText(R.id.reddit_title, currentData.getTitle());
                         views.setTextViewText(R.id.reddit_bottom_bar, bottomBarText);
 
-                        /*Picasso.with(mContext)
-                                .load("http")
-                                .into(views, R.id.preview_img, new int[]{currentAppWidgetId});*/
+                        Handler handler = new Handler(Looper.getMainLooper());
+
+                        Runnable r = new Runnable() {
+                            @Override
+                            public void run() {
+                                String previewUrl = currentData.getPreviewImg();
+                                if(previewUrl != null && !previewUrl.isEmpty() && previewUrl.contains("&amp;")){
+                                    previewUrl = previewUrl.replaceAll("&amp;", "&");
+                                }
+
+                                Picasso.with(mContext)
+                                        .load(previewUrl)
+                                        .into(views, R.id.preview_img, new int[]{currentAppWidgetId});
+                            }
+                        };
+
+                        handler.post(r);
+
 
                         // Create an Intent to launch MainActivity
                         Intent launchIntent = new Intent(mContext, MainActivity.class);

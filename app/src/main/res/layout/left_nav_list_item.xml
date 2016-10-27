@@ -8,7 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:contentDescription="@string/description_left_nav_holder">
 
 
     <View
@@ -18,7 +19,8 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin" />
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:contentDescription="@string/description_left_nav_padding"/>
 
     <ImageView
         android:id="@+id/plus_icon"
@@ -30,7 +32,8 @@
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:focusable="true"
-        android:src="@drawable/ic_add" />
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/description_left_nav_plus_icon"/>
 
     <TextView
         android:id="@+id/item_name"
@@ -42,7 +45,8 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:text="Item"
         style="@android:style/TextAppearance.Medium"
-        android:gravity="center_vertical"/>
+        android:gravity="center_vertical"
+        android:contentDescription="@string/description_left_nav_itemname"/>
     </LinearLayout>
 
     <View

@@ -2,8 +2,8 @@
 <appwidget-provider
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="com.aggarwalankur.capstone.quickreddit.activities.WidgetConfigActivity"
-    android:initialLayout="@layout/reddit_post_list_item"
-    android:previewImage="@mipmap/ic_launcher"
+    android:initialLayout="@layout/reddit_widget_item"
+    android:previewImage="@drawable/reddit_widget_preview"
     android:minHeight="40dp"
     android:minWidth="250dp"
     android:updatePeriodMillis="0" >

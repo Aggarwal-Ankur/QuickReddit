@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList) {
         mProgressDialog.dismiss();
-        mMainViewFragment.updateRedditContents(mDisplayedList, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY), postsList);
+        mMainViewFragment.updateRedditContents(mDisplayedList, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT), postsList);
     }
 
     @Override

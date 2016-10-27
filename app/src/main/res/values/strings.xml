@@ -31,7 +31,36 @@
 
 
     <!--Content Descriptions-->
+    <string name="description_detail_root">This is the root view to display details</string>
+    <string name="description_detail_recycler">This displays the details of a selected reddit post</string>
+    <string name="description_main_recycler">This contains the list of reddit posts</string>
+    <string name="description_config_root">This contains the list of subscribed subreddits</string>
     <string name="widget_list_description">Shows the list which can be tracked by widget</string>
+    <string name="description_search_list">Contains the list of subreddits fetched from search</string>
+    <string name="description_comment_info">Displays the author and time of comment</string>
+    <string name="description_comment_body">Displays the comment</string>
+    <string name="description_tab_layout">Displays the Hot, New and Top tabs</string>
+    <string name="description_ad_layout">Displays the banner ad</string>
+    <string name="description_detail_toolbar">Displays the share button</string>
+    <string name="description_detail_subreddit">Displays the name of subreddit</string>
+    <string name="description_detail_domain">Displays the domain of post</string>
+    <string name="description_detail_title">Displays the title of post</string>
+    <string name="description_detail_author">Displays the author of post</string>
+    <string name="description_detail_time">Displays the time of post</string>
+    <string name="description_detail_image">Displays the image of post, if any</string>
+    <string name="description_detail_play_button">Displayed if the video can be played in an external player</string>
+    <string name="description_detail_num_comments">Displays the number of comments on this post</string>
+    <string name="description_detail_score">Displays the score i.e. upvotes minus downvotes</string>
+    <string name="description_detail_comments">Indicates that the comments are being fetched</string>
+    <string name="description_left_nav_holder">Holds the navigation items on left bar</string>
+    <string name="description_left_nav_padding">Padding navigation items on left bar</string>
+    <string name="description_left_nav_plus_icon">Plus icon on left bar</string>
+    <string name="description_left_nav_itemname">Item name of navigation items on left bar</string>
+    <string name="description_img_preview">Image Preview for the reddit post item</string>
+    <string name="description_topbar">Contains the subreddit name, time and domain of reddit post item</string>
+    <string name="description_title_item">Title of the reddit post item</string>
+    <string name="description_bottombar">Contains the number of comments and score of reddit post item</string>
+    <string name="description_search_suggestion">Search suggestion item for the search query</string>
 
 
     <!--Settings-->

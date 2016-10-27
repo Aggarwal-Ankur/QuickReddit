@@ -17,7 +17,7 @@
         android:id="@+id/suggestion_text"
         android:layout_width="@dimen/search_dialog_width"
         android:layout_height="wrap_content"
-
-        style="@style/SearchSuggestionItem"/>
+        style="@style/SearchSuggestionItem"
+        android:contentDescription="@string/description_search_suggestion"/>
 
 </LinearLayout>
