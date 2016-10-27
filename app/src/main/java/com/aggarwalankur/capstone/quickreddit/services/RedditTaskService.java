@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -108,7 +109,7 @@ public class RedditTaskService extends GcmTaskService {
     private void updateAllSubredditData() {
         //1. Check the last time of sync
         long lastTimeOfSync = Utils.getLongPreference(mContext, LAST_SYNC_TIME_KEY, 0);
-        int syncFrequency = Utils.getIntegerPreference(mContext, mContext.getString(R.string.pref_widget_display_key), 60);
+        int syncFrequency = Integer.parseInt(Utils.getStringPreference(mContext, mContext.getString(R.string.pref_sync_frequency_key), "" + 60));
 
         //Calculate syncFrequency in seconds
         syncFrequency = syncFrequency * 60;
@@ -238,6 +239,8 @@ public class RedditTaskService extends GcmTaskService {
             //6. Save in Db
             SubredditDbHelper.getInstance(mContext).addSubredditData(mPostList, IConstants.POST_TYPE.TOP);
 
+            Intent intent = new Intent(IConstants.BROADCAST_MESSAGES.SUBREDDIT_UPDATE);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,6 +250,9 @@ public class RedditTaskService extends GcmTaskService {
 
 
     private void updateWidgets() {
+        if(mDbHelper == null){
+            mDbHelper = new DbHelper(mContext);
+        }
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(mContext,
                 RedditWidgetProvider.class));
@@ -255,8 +261,8 @@ public class RedditTaskService extends GcmTaskService {
         HashMap<String, WidgetDataDto> widgetDataMap = new HashMap<>();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String suburlPreference = "" + prefs.getInt(mContext.getString(R.string.pref_widget_display_key),
-                Integer.parseInt(mContext.getString(R.string.pref_widget_display_hot)));
+        String suburlPreference = "" + prefs.getString(mContext.getString(R.string.pref_widget_display_key),
+                mContext.getString(R.string.pref_widget_display_hot));
 
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
@@ -332,9 +338,9 @@ public class RedditTaskService extends GcmTaskService {
                         views.setTextViewText(R.id.reddit_title, currentData.getTitle());
                         views.setTextViewText(R.id.reddit_bottom_bar, bottomBarText);
 
-                        Picasso.with(mContext)
+                        /*Picasso.with(mContext)
                                 .load("http")
-                                .into(views, R.id.preview_img, new int[]{currentAppWidgetId});
+                                .into(views, R.id.preview_img, new int[]{currentAppWidgetId});*/
 
                         // Create an Intent to launch MainActivity
                         Intent launchIntent = new Intent(mContext, MainActivity.class);

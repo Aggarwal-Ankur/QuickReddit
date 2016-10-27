@@ -51,6 +51,11 @@ public class Utils {
         return prefs.getString(key, null);
     }
 
+    public static String getStringPreference(Context context, String key, String defVal){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        return prefs.getString(key, defVal);
+    }
+
     public static void saveStringPreference(Context context, String key, String val){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         SharedPreferences.Editor editor = prefs.edit();

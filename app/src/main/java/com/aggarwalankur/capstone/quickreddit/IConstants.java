@@ -35,12 +35,15 @@ public interface IConstants {
         int HOT = 0;
         int NEW = 1;
         int TOP = 2;
+    }
 
+    interface BROADCAST_MESSAGES{
+        String SUBREDDIT_UPDATE = "subreddit_update";
     }
 
     interface LEFT_NAV_TAGS{
         String MAIN_PAGE = "main_page";
-        String SUBREDDIT_FEED = "feed";
+        String SUBREDDIT_FEED = "subreddit_feed";
         String ADD_SUBREDDIT = "add_subreddit";
         String SETTINGS = "settings";
     }

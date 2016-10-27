@@ -2,12 +2,15 @@ package com.aggarwalankur.capstone.quickreddit.activities;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -82,6 +85,7 @@ public class MainActivity extends AppCompatActivity
 
     private String mRedditsJson;
     private String mTag = IConstants.LEFT_NAV_TAGS.MAIN_PAGE;
+    private String mDisplayedList = IConstants.LEFT_NAV_TAGS.MAIN_PAGE;
 
     private List<String> mSearchSuggestionList;
     private RecyclerView mSearchSuggestionRv;
@@ -162,6 +166,12 @@ public class MainActivity extends AppCompatActivity
             fm.executePendingTransactions();
         }
 
+        String leftNavPref = Utils.getStringPreference(mContext, getString(R.string.pref_landing_key));
+
+        if(leftNavPref != null && !leftNavPref.isEmpty()){
+            mTag = leftNavPref;
+        }
+
         mDataFetchFragment.fetchSubscribedSubreddits();
 
         if (isConnected){
@@ -184,11 +194,42 @@ public class MainActivity extends AppCompatActivity
                     .build();
             // Schedule task with tag "periodicsync"
             GcmNetworkManager.getInstance(this).schedule(periodicTask);
+
+            //Register for Booking complete received
+            LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                    new IntentFilter(IConstants.BROADCAST_MESSAGES.SUBREDDIT_UPDATE));
         }
 
         //Initial data
         displayRedditItems();
 
+    }
+
+    // handler for received Intents for the Booking Successful event
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equalsIgnoreCase(IConstants.BROADCAST_MESSAGES.SUBREDDIT_UPDATE)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int displayTypePreference = Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT);
+                        if(mDataFetchFragment != null){
+                            mDataFetchFragment.fetchSubscribedSubreddits();
+                            mDataFetchFragment.fetchRedditPostsFromDb(displayTypePreference);
+                            mProgressDialog.show();
+                        }
+                    }
+                });
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        //Unregister broadcast listener
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
     }
 
     private void showNetworkErrorToast() {
@@ -266,16 +307,16 @@ public class MainActivity extends AppCompatActivity
         if(mTag.equals(IConstants.LEFT_NAV_TAGS.MAIN_PAGE)){
             String url = REDDIT_URL.BASE_URL + displayType + REDDIT_URL.SUBURL_JSON;
             mContentUrl = url;
+            mDisplayedList = mTag;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
             mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SUBREDDIT_FEED)){
             mContentUrl = "";
-
+            mDisplayedList = mTag;
             mDataFetchFragment.fetchRedditPostsFromDb(displayTypePreference);
             mProgressDialog.show();
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.ADD_SUBREDDIT)){
             mAddSubredditDialog.show();
-
             mAddSubredditPositiveButton = mAddSubredditDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             mAddSubredditPositiveButton.setEnabled(false);
         }else if(mTag.equals(IConstants.LEFT_NAV_TAGS.SETTINGS)){
@@ -284,6 +325,7 @@ public class MainActivity extends AppCompatActivity
         }else{
             String url = REDDIT_URL.BASE_URL + mTag + displayType  + REDDIT_URL.SUBURL_JSON;
             mContentUrl = url;
+            mDisplayedList = mTag;
             mDataFetchFragment.fetchRedditPostsByUrl(url);
             mProgressDialog.show();
         }
@@ -313,6 +355,7 @@ public class MainActivity extends AppCompatActivity
                     String query = v.getText().toString().trim();
                     if (!query.isEmpty()){
                         mRestClient.searchSubredditNames(query, MainActivity.this);
+                        mProgressDialog.show();
                     }else{
                         Toast.makeText(MainActivity.this, R.string.empty_query, Toast.LENGTH_SHORT).show();
                     }
@@ -363,14 +406,14 @@ public class MainActivity extends AppCompatActivity
 
             Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
 
-            mMainViewFragment.updateRedditContents(mTag, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
+            mMainViewFragment.updateRedditContents(mDisplayedList, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
         }
     }
 
     @Override
     public void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList) {
         mProgressDialog.dismiss();
-        mMainViewFragment.updateRedditContents(mTag, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY), postsList);
+        mMainViewFragment.updateRedditContents(mDisplayedList, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY), postsList);
     }
 
     @Override
