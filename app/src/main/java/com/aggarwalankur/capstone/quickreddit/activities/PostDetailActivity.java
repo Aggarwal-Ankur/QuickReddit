@@ -38,7 +38,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_detail);
 
-        if (savedInstanceState == null) {
+        /*if (savedInstanceState == null) {*/
             if (getIntent() != null && getIntent().getExtras() != null) {
                 mType = getIntent().getExtras().getString(IConstants.INTENT_EXTRAS.TYPE);
 
@@ -58,7 +58,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     mStartId = getIntent().getExtras().getInt(IConstants.INTENT_EXTRAS.START_ID);
                 }
             }
-        }
+        //}
 
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());

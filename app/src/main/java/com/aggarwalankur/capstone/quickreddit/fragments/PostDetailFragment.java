@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.text.ICUCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -143,7 +144,7 @@ public class PostDetailFragment extends Fragment {
         }
 
         if(mCurrentPost.getUrl() != null){
-            toolbar.inflateMenu(R.menu.reddit_detail);
+            /*toolbar.inflateMenu(R.menu.reddit_detail);
             toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
@@ -152,6 +153,13 @@ public class PostDetailFragment extends Fragment {
                         return true;
                     }
                     return false;
+                }
+            });*/
+
+            mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    shareRedditPost();
                 }
             });
         }
@@ -233,6 +241,13 @@ public class PostDetailFragment extends Fragment {
         return showPlayButton;
     }
 
+    @Override
+    public void onDestroy() {
+        if(mRedditCommentsFetchTask != null){
+            mRedditCommentsFetchTask.cancel(true);
+        }
+        super.onDestroy();
+    }
 
     private void fetchComments(){
         if(mRedditCommentsFetchTask != null){

@@ -62,10 +62,6 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Because Reddit data always has TTL = 0, which means Reddit data is expired as soon as it is
- * fetched, we should not use save instance state to save old data. Instead, we should fetch it afresh
- */
 public class MainActivity extends AppCompatActivity
         implements LeftNavAdapter.LeftNavItemClickCallback,
         DataFetchFragment.FetchCallbacks,
@@ -77,7 +73,8 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String REDDIT_JSON_KEY = "reddit_json";
     private static final String SELECTED_ITEM = "selected_item";
-    private static final String CONTENT_URL = "sontent_url";
+    private static final String CONTENT_URL_KEY = "content_url";
+    private static final String MTAG_KEY = "mtag_key";
 
 
     private static final String SUBEDDIT_PREFIX = "/r/";
@@ -116,7 +113,7 @@ public class MainActivity extends AppCompatActivity
     private ViewPager mDetailsViewPager;
     private List<RedditResponse.RedditPost> mPostsList;
     private MyPagerAdapter mDetailsPagerAdapter;
-    private int mSelectedItem;
+    private int mSelectedItem = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,8 +222,8 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState != null){
             mRedditsJson = savedInstanceState.getString(REDDIT_JSON_KEY);
             mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
-            mContentUrl = savedInstanceState.getString(CONTENT_URL);
-
+            mContentUrl = savedInstanceState.getString(CONTENT_URL_KEY);
+            mTag = savedInstanceState.getString(MTAG_KEY);
             restoreInstanceStateTasks();
         }else {
             //Initial data
@@ -248,6 +245,7 @@ public class MainActivity extends AppCompatActivity
             mPostsList = new ArrayList<>();
             mDetailsPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
             mDetailsViewPager.setAdapter(mDetailsPagerAdapter);
+            mDetailsViewPager.setOffscreenPageLimit(0);
             mDetailsViewPager.setVisibility(View.INVISIBLE);
             mSelectedItem = -1;
         }
@@ -273,6 +271,11 @@ public class MainActivity extends AppCompatActivity
         @Override
         public int getCount() {
             return (mPostsList != null) ? mPostsList.size() : 0;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 
@@ -300,7 +303,8 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         outState.putString(REDDIT_JSON_KEY, mRedditsJson);
         outState.putInt(SELECTED_ITEM, mSelectedItem);
-        outState.putString(CONTENT_URL, mContentUrl);
+        outState.putString(CONTENT_URL_KEY, mContentUrl);
+        outState.putString(MTAG_KEY, mTag);
         super.onSaveInstanceState(outState);
     }
 
@@ -310,7 +314,9 @@ public class MainActivity extends AppCompatActivity
             onSubredditPostsFetchCompleted(mRedditsJson);
         }else{
             //This is from DB, so we can fetch again from db
-            displayRedditItems();
+            int displayTypePreference = Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT);
+            mDataFetchFragment.fetchRedditPostsFromDb(displayTypePreference);
+            mProgressDialog.show();
         }
 
 
@@ -362,7 +368,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLeftNavItemClicked(String tag) {
-        //Toast.makeText(this, "Clicked : "+ tag, Toast.LENGTH_SHORT).show();
         mTag = tag;
         displayRedditItems();
 
@@ -499,7 +504,6 @@ public class MainActivity extends AppCompatActivity
                 mPostsList.clear();
                 mPostsList.addAll(redditPosts.getRedditData().getRedditPostList());
                 mDetailsPagerAdapter.notifyDataSetChanged();
-
                 mDetailsViewPager.setVisibility(View.INVISIBLE);
             }
 
@@ -514,7 +518,6 @@ public class MainActivity extends AppCompatActivity
             mPostsList.clear();
             mPostsList.addAll(postsList);
             mDetailsPagerAdapter.notifyDataSetChanged();
-
             mDetailsViewPager.setVisibility(View.INVISIBLE);
         }
 

@@ -30,14 +30,14 @@
         <fragment
             android:name="com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment"
             android:id="@+id/main_view_fragment"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             tools:layout="@layout/content_main" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
