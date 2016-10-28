@@ -10,8 +10,11 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -28,6 +31,7 @@ import com.aggarwalankur.capstone.quickreddit.IConstants.REDDIT_URL;
 import com.aggarwalankur.capstone.quickreddit.IConstants.POST_TYPE;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -40,11 +44,13 @@ import com.aggarwalankur.capstone.quickreddit.QuickRedditApplication;
 import com.aggarwalankur.capstone.quickreddit.R;
 import com.aggarwalankur.capstone.quickreddit.Utils;
 import com.aggarwalankur.capstone.quickreddit.adapters.LeftNavAdapter;
+import com.aggarwalankur.capstone.quickreddit.adapters.RedditPostsListAdapter;
 import com.aggarwalankur.capstone.quickreddit.adapters.SimpleTextAdapter;
 import com.aggarwalankur.capstone.quickreddit.data.dto.SubredditDTO;
 import com.aggarwalankur.capstone.quickreddit.data.responses.RedditResponse;
 import com.aggarwalankur.capstone.quickreddit.fragments.DataFetchFragment;
 import com.aggarwalankur.capstone.quickreddit.fragments.MainViewFragment;
+import com.aggarwalankur.capstone.quickreddit.fragments.PostDetailFragment;
 import com.aggarwalankur.capstone.quickreddit.services.DataFetchService;
 import com.aggarwalankur.capstone.quickreddit.services.RedditRestClient;
 import com.aggarwalankur.capstone.quickreddit.services.RedditTaskService;
@@ -57,16 +63,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Tutorial used : https://developer.android.com/training/load-data-background/index.html
+ * Because Reddit data always has TTL = 0, which means Reddit data is expired as soon as it is
+ * fetched, we should not use save instance state to save old data. Instead, we should fetch it afresh
  */
 public class MainActivity extends AppCompatActivity
         implements LeftNavAdapter.LeftNavItemClickCallback,
         DataFetchFragment.FetchCallbacks,
         RedditRestClient.SearchSubredditResponseListener,
         MainViewFragment.OnPostTypeSelectedListener,
-        SimpleTextAdapter.SubscribeSubredditClickListener{
+        SimpleTextAdapter.SubscribeSubredditClickListener,
+        RedditPostsListAdapter.RedditPostItemClicked{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String REDDIT_JSON_KEY = "reddit_json";
+    private static final String SELECTED_ITEM = "selected_item";
+    private static final String CONTENT_URL = "sontent_url";
+
+
     private static final String SUBEDDIT_PREFIX = "/r/";
 
     private static final int REDDIT_CURSOR_LOADER_ID = 1;
@@ -98,6 +111,12 @@ public class MainActivity extends AppCompatActivity
     private RedditRestClient mRestClient;
 
     private String mContentUrl;
+
+    private boolean isDualPane;
+    private ViewPager mDetailsViewPager;
+    private List<RedditResponse.RedditPost> mPostsList;
+    private MyPagerAdapter mDetailsPagerAdapter;
+    private int mSelectedItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,15 +197,16 @@ public class MainActivity extends AppCompatActivity
             //If internet is connected, first task is to start GA tracking
             ((QuickRedditApplication)getApplication()).startTracking();
 
-            //TODO : Fetch from shared pref
-            long period = 3600L;
+            long periodFromSharedPref = Integer.parseInt(Utils.getStringPreference(mContext,
+                    mContext.getString(R.string.pref_sync_frequency_key), "" + 60));
+            //long period = 3600L;
             long flex = 10L;
             String periodicTag = IConstants.ACTIONS.PERIODIC_SYNC;
 
             // create a periodic task to pull data
             PeriodicTask periodicTask = new PeriodicTask.Builder()
                     .setService(RedditTaskService.class)
-                    .setPeriod(period)
+                    .setPeriod(periodFromSharedPref)
                     .setFlex(flex)
                     .setTag(periodicTag)
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
@@ -200,9 +220,60 @@ public class MainActivity extends AppCompatActivity
                     new IntentFilter(IConstants.BROADCAST_MESSAGES.SUBREDDIT_UPDATE));
         }
 
-        //Initial data
-        displayRedditItems();
+        setupDualPane();
 
+        if(savedInstanceState != null){
+            mRedditsJson = savedInstanceState.getString(REDDIT_JSON_KEY);
+            mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM);
+            mContentUrl = savedInstanceState.getString(CONTENT_URL);
+
+            restoreInstanceStateTasks();
+        }else {
+            //Initial data
+            displayRedditItems();
+        }
+
+    }
+
+    private void setupDualPane(){
+        mDetailsViewPager = (ViewPager) findViewById(R.id.pager);
+
+        if(mDetailsViewPager != null){
+            isDualPane = true;
+        }else{
+            isDualPane = false;
+        }
+
+        if(isDualPane){
+            mPostsList = new ArrayList<>();
+            mDetailsPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
+            mDetailsViewPager.setAdapter(mDetailsPagerAdapter);
+            mDetailsViewPager.setVisibility(View.INVISIBLE);
+            mSelectedItem = -1;
+        }
+
+    }
+
+    private class MyPagerAdapter extends FragmentStatePagerAdapter {
+        public MyPagerAdapter(android.support.v4.app.FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public void setPrimaryItem(ViewGroup container, int position, Object object) {
+            super.setPrimaryItem(container, position, object);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            RedditResponse.RedditPost currentPost = mPostsList.get(position);
+            return PostDetailFragment.newInstance(currentPost);
+        }
+
+        @Override
+        public int getCount() {
+            return (mPostsList != null) ? mPostsList.size() : 0;
+        }
     }
 
     // handler for received Intents for the Booking Successful event
@@ -224,6 +295,27 @@ public class MainActivity extends AppCompatActivity
             }
         }
     };
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(REDDIT_JSON_KEY, mRedditsJson);
+        outState.putInt(SELECTED_ITEM, mSelectedItem);
+        outState.putString(CONTENT_URL, mContentUrl);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void restoreInstanceStateTasks(){
+        if(mContentUrl != null && !mContentUrl.isEmpty()){
+            //This is not from DB, so we need to restore instance
+            onSubredditPostsFetchCompleted(mRedditsJson);
+        }else{
+            //This is from DB, so we can fetch again from db
+            displayRedditItems();
+        }
+
+
+        onRedditPostItemClicked(mSelectedItem);
+    }
 
     @Override
     protected void onDestroy() {
@@ -255,9 +347,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
@@ -406,6 +495,14 @@ public class MainActivity extends AppCompatActivity
 
             Log.d(TAG, "Posts fetched, size = " + redditPosts.getRedditData().getRedditPostList().size());
 
+            if(isDualPane) {
+                mPostsList.clear();
+                mPostsList.addAll(redditPosts.getRedditData().getRedditPostList());
+                mDetailsPagerAdapter.notifyDataSetChanged();
+
+                mDetailsViewPager.setVisibility(View.INVISIBLE);
+            }
+
             mMainViewFragment.updateRedditContents(mDisplayedList, mRedditsJson, redditPosts.getRedditData().getRedditPostList());
         }
     }
@@ -413,6 +510,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSubredditPostsFetchFromDbCompleted(List<RedditResponse.RedditPost> postsList) {
         mProgressDialog.dismiss();
+        if(isDualPane) {
+            mPostsList.clear();
+            mPostsList.addAll(postsList);
+            mDetailsPagerAdapter.notifyDataSetChanged();
+
+            mDetailsViewPager.setVisibility(View.INVISIBLE);
+        }
+
         mMainViewFragment.updateRedditContents(mDisplayedList, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT), postsList);
     }
 
@@ -440,5 +545,29 @@ public class MainActivity extends AppCompatActivity
         mSubscribeSelectionString = clickedItem;
         mAddSubredditPositiveButton.setText(getString(R.string.subscribe)+ " " +clickedItem);
         mAddSubredditPositiveButton.setEnabled(true);
+    }
+
+    @Override
+    public void onRedditPostItemClicked(int clickedPosition) {
+
+        if(clickedPosition < 0){
+            //Invalid
+            return;
+        }
+
+        if(isDualPane){
+            mDetailsViewPager.setVisibility(View.VISIBLE);
+            mDetailsViewPager.setCurrentItem(clickedPosition);
+            mSelectedItem = clickedPosition;
+        }else{
+            //Launch Details Activity Here
+            Intent detailsIntent = new Intent(mContext, PostDetailActivity.class);
+            detailsIntent.putExtra(IConstants.INTENT_EXTRAS.JSON_STRING, mRedditsJson);
+            detailsIntent.putExtra(IConstants.INTENT_EXTRAS.TYPE, mTag);
+            detailsIntent.putExtra(IConstants.INTENT_EXTRAS.START_ID, clickedPosition);
+            detailsIntent.putExtra(IConstants.INTENT_EXTRAS.POSTS_TYPE, Utils.getIntegerPreference(mContext, POST_TYPE.POST_TYPE_PREF_KEY, POST_TYPE.HOT));
+            startActivity(detailsIntent);
+        }
+
     }
 }

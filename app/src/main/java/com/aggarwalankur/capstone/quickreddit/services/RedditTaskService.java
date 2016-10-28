@@ -94,9 +94,6 @@ public class RedditTaskService extends GcmTaskService {
             }
         }else if(taskParams.getTag().equals(IConstants.ACTIONS.WIDGET)){
             Log.d(TAG, "onRunTask : WIDGET");
-            //TODO : remove this after testing
-            updateAllSubredditData();
-
             updateWidgets();
         }else if(taskParams.getTag().equals(IConstants.ACTIONS.INIT)){
             Log.d(TAG, "onRunTask : INIT");

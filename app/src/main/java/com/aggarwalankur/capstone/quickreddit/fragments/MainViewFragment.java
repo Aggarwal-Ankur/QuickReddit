@@ -47,6 +47,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     private View mRootView;
     private Context mContext;
     private OnPostTypeSelectedListener mCallBackListener;
+    private RedditPostsListAdapter.RedditPostItemClicked mPostTypeClickedParentListener;
 
     private TabLayout mPostTypeTabs;
     private RecyclerView mRecyclerView;
@@ -63,6 +64,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
         mContext = context;
         mCallBackListener = (OnPostTypeSelectedListener)context;
+        mPostTypeClickedParentListener = (RedditPostsListAdapter.RedditPostItemClicked)context;
     }
 
     @Override
@@ -73,10 +75,15 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
         mPostTypeTabs = (TabLayout) mRootView.findViewById(R.id.post_type_selection);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.reddit_posts_recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mRecyclerView.setHasFixedSize(true);
+
         mRedditPostsList = new ArrayList<>();
         mAdapter = new RedditPostsListAdapter(getActivity(), mRedditPostsList, this);
         mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+
 
         setupPostTypeTabs();
         loadBannerAd();
@@ -185,7 +192,6 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        //TODO : create adapter
         //mCursorAdapter.swapCursor(cursor);
     }
 
@@ -198,13 +204,10 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     public void onRedditPostItemClicked(int clickedPosition) {
         Log.d(TAG, "clicked : " + clickedPosition);
 
-        //Launch Details Activity Here
-        Intent detailsIntent = new Intent(mContext, PostDetailActivity.class);
-        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.JSON_STRING, mRedditsJson);
-        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.TYPE, mTag);
-        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.START_ID, clickedPosition);
-        detailsIntent.putExtra(IConstants.INTENT_EXTRAS.POSTS_TYPE, mSelectedPostsType);
-        startActivity(detailsIntent);
+        //Just propogate to parent. The parent activity will decide
+        if(mPostTypeClickedParentListener != null){
+            mPostTypeClickedParentListener.onRedditPostItemClicked(clickedPosition);
+        }
 
     }
 }

@@ -38,14 +38,13 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif"
             android:maxLines="3"
-            android:contentDescription="@string/description_title_item"/>
+            />
 
         <TextView
             android:id="@+id/reddit_bottom_bar"
             style="@style/SecondaryText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/description_bottombar"/>
+            android:layout_height="wrap_content" />
 
         <View
             android:id="@+id/bottom_divider"
