@@ -79,6 +79,9 @@ public class RedditPostsListAdapter extends RecyclerView.Adapter<RedditPostsList
         });
     }
 
+    /**
+     * Tries to get the best quality image preview URL available
+     */
     private String getImageUrl(RedditResponse.RedditContent redditContent){
         String previewImgUrlFromDb = redditContent.getPreviewImgUrl();
         if(previewImgUrlFromDb != null && !previewImgUrlFromDb.isEmpty()){

@@ -65,10 +65,6 @@ public class PostDetailActivity extends AppCompatActivity {
         mPager.setAdapter(mPagerAdapter);
         mPager.setCurrentItem(mStartId);
 
-        /*mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
-
-        });*/
-
     }
 
 

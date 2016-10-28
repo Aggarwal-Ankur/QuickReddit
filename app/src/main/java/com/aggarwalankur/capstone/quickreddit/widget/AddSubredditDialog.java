@@ -8,7 +8,9 @@ import android.view.Window;
 import com.aggarwalankur.capstone.quickreddit.R;
 
 /**
- * Created by Ankur on 24-Oct-16.
+ * Created by Ankur on 24-Oct-16
+ *
+ * Unsused as of now. Not deleted becuase may need in future
  */
 
 public class AddSubredditDialog extends Dialog {

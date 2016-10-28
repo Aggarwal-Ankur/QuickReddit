@@ -190,6 +190,9 @@ public class PostDetailFragment extends Fragment {
         fetchComments();
     }
 
+    /**
+     * Helper function for sharing this post
+     */
     private void shareRedditPost() {
         Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
@@ -202,6 +205,9 @@ public class PostDetailFragment extends Fragment {
         startActivity(Intent.createChooser(shareIntent, getActivity().getResources().getString(R.string.share_reddit_post)));
     }
 
+    /**
+     * Tries to get the best quality preview image
+     */
     private String getPreviewUrl(){
         String previewImgUrlFromDb = mCurrentPost.getPreviewImgUrl();
         if(previewImgUrlFromDb != null && !previewImgUrlFromDb.isEmpty()){
@@ -229,6 +235,9 @@ public class PostDetailFragment extends Fragment {
         return previewUrl;
     }
 
+    /**
+     * Helper function to decide if we need to display the "Play" semi-tranparent button over video/gifs
+     */
     private boolean showPlayButton(){
         boolean showPlayButton = false;
 

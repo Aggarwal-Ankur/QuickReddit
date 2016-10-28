@@ -27,7 +27,9 @@ import com.aggarwalankur.capstone.quickreddit.widget.RedditWidgetProvider;
 import java.util.List;
 
 /**
- * Created by Ankur on 23-Oct-16.
+ * Created by Ankur on 23-Oct-16
+ *
+ * Activity launched when the user selects a widget to be displayed on the home screen
  */
 
 public class WidgetConfigActivity extends AppCompatActivity

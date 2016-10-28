@@ -6,7 +6,9 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 
 /**
- * Created by Ankur on 23-Oct-16.
+ * Created by Ankur on 23-Oct-16
+ *
+ * Created to allow GA tracking
  */
 
 public class QuickRedditApplication extends Application {

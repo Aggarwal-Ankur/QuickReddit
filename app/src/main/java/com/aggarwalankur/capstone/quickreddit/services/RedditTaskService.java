@@ -13,7 +13,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import com.aggarwalankur.capstone.quickreddit.IConstants;
@@ -87,15 +86,15 @@ public class RedditTaskService extends GcmTaskService {
             list.add(subreddit);
             long subscribeResult = SubredditDbHelper.getInstance(mContext).addSubreddit(subreddit);
 
-            if(subscribeResult != -1){
+            if (subscribeResult != -1) {
                 fetchAndSaveSubredditData(list);
-            }else{
+            } else {
                 return -1;
             }
-        }else if(taskParams.getTag().equals(IConstants.ACTIONS.WIDGET)){
+        } else if (taskParams.getTag().equals(IConstants.ACTIONS.WIDGET)) {
             Log.d(TAG, "onRunTask : WIDGET");
             updateWidgets();
-        }else if(taskParams.getTag().equals(IConstants.ACTIONS.INIT)){
+        } else if (taskParams.getTag().equals(IConstants.ACTIONS.INIT)) {
             Log.d(TAG, "onRunTask : INIT");
             updateAllSubredditData();
 
@@ -113,7 +112,7 @@ public class RedditTaskService extends GcmTaskService {
         //Calculate syncFrequency in seconds
         syncFrequency = syncFrequency * 60;
 
-        if(((System.currentTimeMillis() - lastTimeOfSync)/ 1000) < syncFrequency){
+        if (((System.currentTimeMillis() - lastTimeOfSync) / 1000) < syncFrequency) {
             //Do nothing
             Log.d(TAG, "updateAllSubredditData : not syncing because of time difference");
             return;
@@ -247,9 +246,11 @@ public class RedditTaskService extends GcmTaskService {
 
     }
 
-
+    /**
+     * Helper function to update the widgets
+     */
     private void updateWidgets() {
-        if(mDbHelper == null){
+        if (mDbHelper == null) {
             mDbHelper = new DbHelper(mContext);
         }
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
@@ -267,7 +268,7 @@ public class RedditTaskService extends GcmTaskService {
 
         //Get the data from the DB and update the widgets
         try {
-            String selectionClause = RedditPostContract.RedditPost.COLUMN_POST_TYPE + " ="+suburlPreference;
+            String selectionClause = RedditPostContract.RedditPost.COLUMN_POST_TYPE + " =" + suburlPreference;
 
             Cursor initQueryCursor = db.query(true,
                     RedditPostContract.RedditPost.TABLE_NAME,
@@ -275,6 +276,7 @@ public class RedditTaskService extends GcmTaskService {
                     selectionClause,
                     null, null, null, null, null);
 
+            /** Firstly, let's create a map of what data all widgets need**/
             if (initQueryCursor != null) {
                 initQueryCursor.moveToFirst();
 
@@ -307,6 +309,9 @@ public class RedditTaskService extends GcmTaskService {
                 initQueryCursor.close();
             }
 
+            /**
+             * If the data is available, update the widgets
+             */
             if (!widgetDataMap.isEmpty()) {
                 for (final int currentAppWidgetId : appWidgetIds) {
                     String key = RedditWidgetProvider.SYMBOL_KEY_PREFIX
@@ -341,11 +346,12 @@ public class RedditTaskService extends GcmTaskService {
 
                         Handler handler = new Handler(Looper.getMainLooper());
 
+                        //Note that widget image needs to be updated on main thread
                         Runnable r = new Runnable() {
                             @Override
                             public void run() {
                                 String previewUrl = currentData.getPreviewImg();
-                                if(previewUrl != null && !previewUrl.isEmpty() && previewUrl.contains("&amp;")){
+                                if (previewUrl != null && !previewUrl.isEmpty() && previewUrl.contains("&amp;")) {
                                     previewUrl = previewUrl.replaceAll("&amp;", "&");
                                 }
 
@@ -372,7 +378,7 @@ public class RedditTaskService extends GcmTaskService {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             db.close();
         }
     }

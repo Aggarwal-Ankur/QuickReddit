@@ -109,6 +109,8 @@ public class MainActivity extends AppCompatActivity
 
     private String mContentUrl;
 
+
+    /**Everything required for displaying dual pane on tablets**/
     private boolean isDualPane;
     private ViewPager mDetailsViewPager;
     private List<RedditResponse.RedditPost> mPostsList;
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity
 
         mRestClient = new RedditRestClient(this);
 
-        //All tasks related to the dialog
+        //All tasks related to the "Add Subreddit" dialog
         setupAddSubredditDialog();
 
         //Setup the progress dialog
@@ -196,7 +198,6 @@ public class MainActivity extends AppCompatActivity
 
             long periodFromSharedPref = Integer.parseInt(Utils.getStringPreference(mContext,
                     mContext.getString(R.string.pref_sync_frequency_key), "" + 60));
-            //long period = 3600L;
             long flex = 10L;
             String periodicTag = IConstants.ACTIONS.PERIODIC_SYNC;
 
@@ -232,6 +233,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Tasks to setup Dual pane for Tablets
+     */
     private void setupDualPane(){
         mDetailsViewPager = (ViewPager) findViewById(R.id.pager);
 
@@ -252,6 +256,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Used only if dual pane
+     */
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
         public MyPagerAdapter(android.support.v4.app.FragmentManager fm) {
             super(fm);
@@ -308,6 +315,9 @@ public class MainActivity extends AppCompatActivity
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Helper function to restore instance state on rotation
+     */
     private void restoreInstanceStateTasks(){
         if(mContentUrl != null && !mContentUrl.isEmpty()){
             //This is not from DB, so we need to restore instance
@@ -375,6 +385,9 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
     }
 
+    /**
+     * The central function which is used to display new data whenever user chooses a different item
+     */
     private void displayRedditItems(){
         if(mDataFetchFragment == null){
             return;
@@ -425,6 +438,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * All tasks related to the "Add Subreddit" dialog
+     */
     private void setupAddSubredditDialog(){
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -480,6 +496,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     *  Different callbacks for different interfaces the main activity implements
+     */
 
     @Override
     public void onSubredditListFetchCompleted(List<SubredditDTO> subredditList) {

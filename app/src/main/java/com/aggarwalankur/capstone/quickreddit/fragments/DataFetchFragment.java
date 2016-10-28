@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Ankur on 19-Oct-16.
+ * Created by Ankur on 19-Oct-16
+ *
+ * A retained fragment for fetching data, so that orientation changes do not effect the data already fetched
  */
 
 public class DataFetchFragment extends Fragment {
@@ -32,9 +34,6 @@ public class DataFetchFragment extends Fragment {
     }
 
     private static final String TAG = DataFetchFragment.class.getSimpleName();
-
-    List<SubredditDTO> mSubredditList = new ArrayList<>();
-    List<RedditResponse> mRedditPostsList = new ArrayList<>();
 
     private FetchCallbacks mCallbackListener;
 

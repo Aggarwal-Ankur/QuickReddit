@@ -61,6 +61,8 @@ public class LeftNavAdapter extends RecyclerView.Adapter<LeftNavAdapter.LeftNavV
 
     @Override
     public void onBindViewHolder(LeftNavViewHolder holder, int position) {
+        //A single holder is used to create indented layout for left navigation drawer
+
         if(position == 0){
             //1. Reddit Main Page
             holder.leftPadding.setVisibility(View.GONE);

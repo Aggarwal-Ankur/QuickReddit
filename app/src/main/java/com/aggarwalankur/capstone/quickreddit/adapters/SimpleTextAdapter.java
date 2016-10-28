@@ -12,7 +12,10 @@ import com.aggarwalankur.capstone.quickreddit.R;
 import java.util.List;
 
 /**
- * Created by ggne0497 on 10/25/2016.
+ * Created by Ankur on 25-Oct-2016
+ *
+ * This is the adapter used to display the subreddit suggestions when user clicks
+ * "Add Subreddit" and searches for a query
  */
 public class SimpleTextAdapter extends RecyclerView.Adapter<TextHolder> {
 

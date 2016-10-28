@@ -177,7 +177,7 @@ public class MainViewFragment extends Fragment implements LoaderManager.LoaderCa
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle bundle) {
         switch (loaderID) {
             case REDDIT_CURSOR_LOADER_ID:
-                // This narrows the return to only the stocks that are most current.
+                // This narrows the return to only the items that are most current.
                 return new CursorLoader(getActivity(), RedditPostContract.RedditPost.CONTENT_URI,
                         RedditPostContract.RedditPost.ALL_COLUMNS,
                         RedditPostContract.RedditPost.COLUMN_POST_TYPE + " = " + 1,
